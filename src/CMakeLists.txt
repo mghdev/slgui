@@ -24,4 +24,4 @@ target_include_directories(${TARGET_NAME} PRIVATE
     ${SLGUI_INCLUDE_DIR}
     ${SDL2_INCLUDE_DIRS})
 
-target_link_libraries(Silhouette ${SDL2_LIBRARIES} SDL2_image slgui)
+target_link_libraries(${TARGET_NAME} ${SDL2_LIBRARIES} SDL2_image)

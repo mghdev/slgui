@@ -51,10 +51,11 @@ void Window::sendEvent(const SDL_Event& event)
         case SDL_MOUSEMOTION:
             break;
         case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
+        case SDL_MOUSEBUTTONUP: {
             auto v = content_view->hitTest({event.button.x,event.button.y});
             
             break;
+        }
         case SDL_MOUSEWHEEL:
             break;
         default:
