@@ -21,14 +21,15 @@ public:
     ViewController* content_vc = nullptr;
     View* content_view = nullptr;
     View* first_responder = nullptr;
+    View* active_responder = nullptr;
     
     Window(int width, int height);
     
-    ~Window();
-    Window(const Window&) = delete; //copy ctor
-    Window& operator=(const Window&) = delete; //copy assign
-    Window(Window&& other) noexcept; //move ctor
-    Window& operator=(Window&& other) noexcept; //move assign
+    virtual ~Window();
+    Window(const Window&) = delete;
+    Window& operator=(const Window&) = delete;
+    Window(Window&& other) noexcept;
+    Window& operator=(Window&& other) noexcept;
     
     void sendEvent(const SDL_Event& event);
     

@@ -15,6 +15,7 @@ class View : public Responder
 {
 protected:
     Rect _rect;
+    Rect visible_rect;
     View* _superview;
     Window* _window;
     bool _needs_display = true;
@@ -32,10 +33,16 @@ public:
     
     virtual void draw(SDL_Renderer* renderer, const Point& offset = {0,0});
     
-    virtual View* hitTest(Point p);
     virtual void setRect(Rect r);
+    virtual View* hitTest(Point p);
+    virtual Rect convertRectFrom(Rect r, const View& other) const;
+    virtual Rect convertRectTo(Rect r, const View& other) const;
+    
     virtual void addSubview(std::shared_ptr<View> v);
     virtual void removeFromSuperview();
+    
+    virtual bool isDescendantOf(const View& other) const;
+    virtual View* closestSharedAncestor(const View& other) const;
 };
 
 } //namespace SL
