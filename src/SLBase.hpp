@@ -55,6 +55,11 @@ struct _Point
         return o;
     }
     
+    _Point<T> operator-() const
+    {
+        return {-x,-y};
+    }
+    
     _Point<T> operator*(const T& r) const
     {
         _Point<T> o{x,y};
@@ -83,7 +88,7 @@ struct _Point
 typedef _Point<unsigned> PointU;
 typedef _Point<int> PointI;
 typedef _Point<double> PointF;
-typedef PointI Point;
+typedef PointF Point;
 
 template <typename T2,typename T1>
 _Point<T2> PointCast(_Point<T1> p)
@@ -99,6 +104,22 @@ struct _Rect
     _Point<T> origin() const
     {
         return {x,y};
+    }
+    
+    _Point<T> size() const
+    {
+        return {w,h};
+    }
+    
+    template <typename T> const
+    _Point<T> maxPoint()
+    {
+        return {x+w,y+h};
+    }
+    
+    _Rect<T> transform(const _Point<T>& offset, const _Point<T>& scale = {1,1}) const
+    {
+        return {x+offset.x,y+offset.y,w*scale.x,h*scale.y};
     }
     
     bool operator==(const _Rect& o) const
@@ -120,19 +141,7 @@ struct _Rect
 typedef _Rect<unsigned> RectU;
 typedef _Rect<int> RectI;
 typedef _Rect<double> RectF;
-typedef RectI Rect;
-
-template <typename T>
-_Point<T> origin(const _Rect<T>& r)
-{
-    return {r.x,r.y};
-}
-
-template <typename T>
-_Point<T> maxPoint(const _Rect<T>& r)
-{
-    return {r.x+r.w,r.y+r.h};
-}
+typedef RectF Rect;
 
 template <typename T>
 _Rect<T> rectFromPoints(const _Point<T>& a,const _Point<T>& b)
@@ -153,7 +162,7 @@ struct _Line
 typedef _Line<unsigned> LineU;
 typedef _Line<int> LineI;
 typedef _Line<double> LineF;
-typedef LineI Line;
+typedef LineF Line;
 
 template <typename T>
 T clamp(const T& min,const T& value,const T& max)
@@ -163,9 +172,9 @@ T clamp(const T& min,const T& value,const T& max)
 
 struct Color
 {
-    Uint8 r=0,g=0,b=0;
+    Uint8 r=0,g=0,b=0,a=0;
 };
-static constexpr Color BLACK = {0,0,0};
+static constexpr Color BLACK = {0,0,0,0};
 
 } //namespace SL
 

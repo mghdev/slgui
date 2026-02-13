@@ -13,7 +13,7 @@ class Window : public Responder
 {
 protected:
     bool in_fullscreen = false;
-    Rect last_windowed_rect;
+    RectI last_windowed_rect;
 public:
     SDL_Window* backing_window = nullptr;
     SDL_Renderer* renderer = nullptr;
