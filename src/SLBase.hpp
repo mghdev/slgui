@@ -111,8 +111,7 @@ struct _Rect
         return {w,h};
     }
     
-    template <typename T> const
-    _Point<T> maxPoint()
+    _Point<T> maxPoint() const
     {
         return {x+w,y+h};
     }

@@ -5,28 +5,15 @@
 
 namespace SL {
 
-// typedef enum {
-//     KEYDOWN = SDL_KEYDOWN,
-//     KEYUP = SDL_KEYUP,
-//     MOUSEMOTION = SDL_MOUSEMOTION,
-//     MOUSEBUTTONDOWN = SDL_MOUSEBUTTONDOWN,
-//     MOUSEBUTTONUP = SDL_MOUSEBUTTONUP,
-//     MOUSEWHEEL = SDL_MOUSEWHEEL
-// } EventType;
-
-// struct Event
-// {
-//     SDL_Event raw_event;
-    
-//     EventType type() const;
-// };
-
 class Responder
 {
 protected:
-    Responder* next_responder = nullptr;
 public:
-    virtual void setNextResponder(Responder* r);
+    Responder* next_responder = nullptr;
+    
+    virtual bool acceptsFirstResponder();
+    virtual bool becomeFirstResponder();
+    virtual bool resignFirstResponder();
     
     virtual void respondToEvent(const SDL_Event& e);
     
@@ -38,6 +25,8 @@ public:
     virtual void rightMouseUp(const SDL_Event& e);
     virtual void otherMouseUp(const SDL_Event& e);
     
+    virtual void mouseMoved(const SDL_Event& e);
+    
     virtual void leftMouseDragged(const SDL_Event& e);
     virtual void rightMouseDragged(const SDL_Event& e);
     virtual void otherMouseDragged(const SDL_Event& e);
@@ -47,7 +36,6 @@ public:
     virtual void keyDown(const SDL_Event& e);
     virtual void keyUp(const SDL_Event& e);
 };
-
 
 } //namespace SL
 

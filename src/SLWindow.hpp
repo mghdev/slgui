@@ -1,6 +1,8 @@
 #ifndef SILHOUETTE_INCLUDE_WINDOW_H_
 #define SILHOUETTE_INCLUDE_WINDOW_H_
 
+#include <memory>
+
 #include <SDL.h>
 #include "SLBase.hpp"
 #include "SLApplication.hpp"
@@ -17,12 +19,11 @@ protected:
 public:
     SDL_Window* backing_window = nullptr;
     SDL_Renderer* renderer = nullptr;
+    std::unique_ptr<ViewController> content_vc = nullptr;
+    std::shared_ptr<View> content_view = nullptr;  //ownership of the content view can be shared between the window and content_vc
     
-    ViewController* content_vc = nullptr;
-    View* content_view = nullptr;
-    View* first_responder = nullptr;
-    View* active_responder = nullptr;
-    
+    Responder* first_responder = nullptr;
+        
     Window(int width, int height);
     
     virtual ~Window();
@@ -32,6 +33,7 @@ public:
     Window& operator=(Window&& other) noexcept;
     
     void sendEvent(const SDL_Event& event);
+    bool makeFirstResponder(Responder& responder);
     
     void displayIfNeeded();
     void toggleFullscreen();

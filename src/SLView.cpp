@@ -54,19 +54,28 @@ Rect View::transformRectFrom(Rect r, const View* other) const
         return other->transformRectTo(r,this);
     }
     
+    auto reverse = transformRectTo({0,0,1,1},nullptr);
+    r = {
+        (r.x-reverse.x)/reverse.w,
+        (r.y-reverse.y)/reverse.h,
+        r.w/reverse.w,
+        r.h/reverse.h
+    };
+    return r;
 }
 
 Rect View::transformRectTo(Rect r, const View* other) const
 {
+    // assume this->window is non-null, otherwise it is an error to call this method
     if(other) {
+        // also assume other->window == this->window
         // convert to other view's coordinate system
-        // auto ancestor = closestSharedAncestor(*other);
         auto v = this;
         while(!(v == other || other->isDescendantOf(*v))) {
             r = transformToSuperview(r,*v);
             v = v->superview;
         }
-        if(!(v == other)) {
+        if(v != other) {
             auto reverse = other->transformRectTo({0,0,1,1},v);
             r = {
                 (r.x-reverse.x)/reverse.w,
@@ -94,9 +103,17 @@ void View::setFrame(Rect r)
     needs_display = true;
 }
 
+void View::setWindow(Window* w)
+{
+    window = w;
+    for(auto& view : subviews) {
+        view->setWindow(w);
+    }
+}
+
 void View::addSubview(std::shared_ptr<View> v)
 {
-    v->setNextResponder(this);
+    v->next_responder = this;
     v->superview = this;
     needs_display = needs_display | v->needs_display;
     subviews.push_back(v);

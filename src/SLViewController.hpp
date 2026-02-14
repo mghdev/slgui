@@ -21,12 +21,6 @@ public:
     
     View& view() {return *_view;};
     
-    virtual void respondToEvent(const SDL_Event& event) override;
-    
-    virtual void mouseDown(const SDL_Event& event);
-    virtual void mouseUp(const SDL_Event& event);
-    virtual void mouseMoved(const SDL_Event& event);
-    virtual void mouseDragged(const SDL_Event& event);
 };
 
 } //namespace SL

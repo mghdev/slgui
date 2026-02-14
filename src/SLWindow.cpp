@@ -42,25 +42,95 @@ void Window::sendEvent(const SDL_Event& event)
         case SDL_KEYDOWN:
         case SDL_KEYUP:
             if(first_responder) {
-                first_responder->respondToEvent(event);
+                first_responder->keyDown(event);
+            }
+            break;
+        case SDL_MOUSEMOTION: {
+            int x,y;
+            auto state = SDL_GetMouseState(&x,&y);
+            if(state == 0) {
+                auto v = content_view->hitTest(PointCast<double,int>({x,y}));
+                if(!v) {
+                    break;
+                }
+                v->mouseMoved(event);
             }
             else {
-                respondToEvent(event);
+                if(state & SDL_BUTTON_LMASK) {
+                    first_responder->leftMouseDragged(event);
+                }
+                if(state & SDL_BUTTON_RMASK) {
+                    first_responder->rightMouseDragged(event);
+                }
+                if(state & ~(SDL_BUTTON_LMASK | SDL_BUTTON_RMASK)) {
+                    first_responder->otherMouseDragged(event);
+                }
             }
             break;
-        case SDL_MOUSEMOTION:
-            break;
-        case SDL_MOUSEBUTTONDOWN:
+        }
+        case SDL_MOUSEBUTTONDOWN: {
+            auto v = content_view->hitTest(PointCast<double,int>({event.button.x,event.button.y}));
+            switch (event.button.button)
+            {
+                case SDL_BUTTON_LEFT:
+                    makeFirstResponder(*v);
+                    v->leftMouseDown(event);
+                    break;
+                case SDL_BUTTON_RIGHT:
+                    makeFirstResponder(*this);
+                    v->rightMouseDown(event);
+                    break;
+                default:
+                    v->otherMouseDown(event);
+                    break;
+            }
+        }
         case SDL_MOUSEBUTTONUP: {
-            auto v = content_view->hitTest({event.button.x,event.button.y});
-            
+            auto v = content_view->hitTest(PointCast<double,int>({event.button.x,event.button.y}));
+            if(!v) {
+                break;
+            }
+            switch (event.button.button)
+            {
+                case SDL_BUTTON_LEFT:
+                    // first responder status changes on left mouse down, not up
+                    v->leftMouseUp(event);
+                    break;
+                case SDL_BUTTON_RIGHT:
+                    first_responder->rightMouseUp(event);
+                    break;
+                default:
+                    makeFirstResponder(*v);
+                    v->otherMouseUp(event);
+                    break;
+            }
             break;
         }
-        case SDL_MOUSEWHEEL:
+        case SDL_MOUSEWHEEL: {
+            auto v = content_view->hitTest(PointCast<double,int>({event.wheel.mouseX,event.wheel.mouseY}));
+            if(!v) {
+                break;
+            }
+            v->scrollWheel(event);
             break;
+        }
         default:
             break;
     }
+}
+
+bool Window::makeFirstResponder(Responder& responder)
+{
+    if(first_responder && !first_responder->resignFirstResponder()) {
+        return false;
+    }
+    if(responder.becomeFirstResponder()) {
+        first_responder = &responder;
+    }
+    else {
+        first_responder = this;
+    }
+    return true;
 }
 
 void Window::displayIfNeeded()

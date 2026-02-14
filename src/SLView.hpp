@@ -21,16 +21,17 @@ public:
     Rect frame; // Placement within superview's coordinate system
     Rect bounds;  // Rect within own coordinate system that is currently aligned with frame.
     
-    std::vector<std::shared_ptr<View>> subviews;
+    std::vector<std::shared_ptr<View>> subviews; //ownership of subviews can be shared between superview and view controller
     float z_position = 0.0f;
     
     View(Rect rect);
-        
+    
     virtual void setFrame(Rect r);
     virtual View* hitTest(Point p);
     virtual Rect transformRectFrom(Rect r, const View* other) const;
     virtual Rect transformRectTo(Rect r, const View* other) const;
     
+    virtual void setWindow(Window* window);
     virtual void addSubview(std::shared_ptr<View> v);
     virtual void removeFromSuperview();
     
