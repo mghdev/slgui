@@ -3,10 +3,10 @@
 
 namespace SL {
 
-Application::Application()
+Application::Application(std::unique_ptr<ViewController> vc)
 {
     SDL_Init(0);
-    main_window = std::make_shared<Window>(960,720);
+    main_window = std::make_unique<Window>(std::move(vc));
 }
 
 Application::~Application()
@@ -43,32 +43,3 @@ int Application::run()
 }
 
 } //namespace SL
-
-
-// template <typename ET,typename E>
-// void _SLEventSystem<ET,E>::addEventWatch(ET type,_Responder<E>* resp)
-// {
-//     responders.insert({type,{}});
-//     responders[type].push_back(resp);
-// }
-
-// template <typename ET,typename E>
-// void _SLEventSystem<ET,E>::delEventWatch(ET type,_Responder<E>* resp)
-// {
-//     if(responders.contains(type)) {
-//         auto vec = responders[type];
-//         vec.erase(std::find(begin(vec),end(vec),resp));
-//     }
-// }
-
-// template <typename ET,typename E>
-// void _SLEventSystem<ET,E>::handleEvent(const E& event)
-// {
-//     if(responders.contains(event.type)) {
-//         auto& vec = responders[event.type];
-//         for(auto& resp : vec) {
-//             resp->respondToEvent(event);
-//         }
-//     }
-// }
-// template class _SLEventSystem<Uint32,SDL_Event>;

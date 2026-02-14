@@ -2,10 +2,10 @@
 #define SILHOUETTE_INCLUDE_WINDOW_H_
 
 #include <memory>
-
 #include <SDL.h>
+
 #include "SLBase.hpp"
-#include "SLApplication.hpp"
+#include "SLEvent.hpp"
 #include "SLViewController.hpp"
 #include "SLView.hpp"
 
@@ -24,7 +24,7 @@ public:
     
     Responder* first_responder = nullptr;
         
-    Window(int width, int height);
+    Window(std::unique_ptr<ViewController> vc);
     
     virtual ~Window();
     Window(const Window&) = delete;

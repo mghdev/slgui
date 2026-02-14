@@ -6,10 +6,10 @@
 
 namespace SL {
 
-Window::Window(int width, int height)
+Window::Window(std::unique_ptr<ViewController> vc)
 {
     int window_flags = SDL_WINDOW_OPENGL;
-    if(SDL_CreateWindowAndRenderer(width,height,window_flags,&backing_window,&renderer) != 0) {
+    if(SDL_CreateWindowAndRenderer(vc->view().frame.w,vc->view().frame.h,window_flags,&backing_window,&renderer) != 0) {
         auto e = SDL_GetError();
         throw std::runtime_error(std::format("Failed to create backing window: {}",e));
     }
@@ -35,6 +35,9 @@ Window& Window::operator=(Window&& other) noexcept
 
 void Window::sendEvent(const SDL_Event& event)
 {
+    if(!content_view) {
+        return;
+    }
     switch (event.type)
     {
         case SDL_WINDOWEVENT:

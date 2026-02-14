@@ -7,10 +7,11 @@
 #include <SDL.h>
 
 #include "SLBase.hpp"
-#include "SLApplication.hpp"
+#include "SLEvent.hpp"
 
 namespace SL {
 
+class Window;
 class View : public Responder
 {
 protected:

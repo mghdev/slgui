@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cmath>
+#include <stdint.h>
 
 namespace SL {
 
@@ -171,45 +172,11 @@ T clamp(const T& min,const T& value,const T& max)
 
 struct Color
 {
-    Uint8 r=0,g=0,b=0,a=0;
+    uint8_t r=0,g=0,b=0,a=0;
 };
 static constexpr Color BLACK = {0,0,0,0};
 
 } //namespace SL
-
-
-
-// template <typename T>
-// struct SLUnorderedPair
-// {
-//     T a,b;
-    
-//     bool operator==(const SLUnorderedPair<T>& o) const
-//     {
-//         return (a==o.a && b==o.b) || (a==o.b && b==o.a);
-//     }
-//     bool operator<(const SLUnorderedPair<T>& o) const  
-//     {
-//         // return a+b < o.a+o.b;
-//         return a+b == o.a+o.b ? (*this != o && a < o.a) : a+b < o.a+o.b;
-//     }
-    
-//     SLUnorderedPair<T> operator-() const
-//     {
-//         return SLUnorderedPair<T>{b,a};
-//     }
-    
-//     struct hash
-//     {
-//         std::size_t operator()(const SLUnorderedPair<T>& pair) const
-//         {
-//             const std::size_t a = static_cast<std::size_t>(pair.a);
-//             const std::size_t b = static_cast<std::size_t>(pair.b);
-//             return (a<b) ? ((b << 32) ^ a) : ((a << 32) ^ b);
-//         }
-//     };
-// };
-// typedef SLUnorderedPair<unsigned> SLUPair;
 
 #endif
 

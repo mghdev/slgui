@@ -3,8 +3,8 @@
 
 #include <memory>
 
-#include "SLApplication.hpp"
 #include "SLBase.hpp"
+#include "SLEvent.hpp"
 #include "SLView.hpp"
 
 namespace SL {

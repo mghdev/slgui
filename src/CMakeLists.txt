@@ -3,7 +3,6 @@ set(TARGET_NAME slgui)
 set(PUBLIC_HEADER_FILES
     SLApplication.hpp
     SLBase.hpp
-    SLConfigModel.hpp
     SLEvent.hpp
     SLGeometry.hpp
     SLView.hpp
@@ -12,7 +11,6 @@ set(PUBLIC_HEADER_FILES
 set(SOURCE_FILES ${PUBLIC_HEADER_FILES})
 list(APPEND SOURCE_FILES 
     SLApplication.cpp
-    SLConfigModel.cpp
     SLEvent.cpp
     SLView.cpp 
     SLViewController.cpp
