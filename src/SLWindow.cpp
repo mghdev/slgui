@@ -107,7 +107,9 @@ void Window::sendEvent(const SDL_Event& event)
             break;
         }
         case SDL_MOUSEWHEEL: {
-            auto v = content_view->hitTest(PointCast<double,int>({event.wheel.mouseX,event.wheel.mouseY}));
+            int x,y;
+            SDL_GetMouseState(&x,&y);
+            auto v = content_view->hitTest(PointCast<double,int>({x,y}));
             if(!v) {
                 break;
             }
