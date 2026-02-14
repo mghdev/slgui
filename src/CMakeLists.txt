@@ -21,7 +21,6 @@ list(APPEND SOURCE_FILES
 add_library(${TARGET_NAME} ${SOURCE_FILES})
 
 target_include_directories(${TARGET_NAME} PRIVATE 
-    ${SLGUI_INCLUDE_DIR}
-    ${SDL2_INCLUDE_DIRS})
+    ${SLGUI_INCLUDE_DIRS})
 
 target_link_libraries(${TARGET_NAME} ${SDL2_LIBRARIES} SDL2_image)
