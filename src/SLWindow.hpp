@@ -32,6 +32,8 @@ public:
     Window(Window&& other) noexcept;
     Window& operator=(Window&& other) noexcept;
     
+    void setContentVC(std::unique_ptr<ViewController> vc);
+    
     void sendEvent(const SDL_Event& event);
     bool makeFirstResponder(Responder& responder);
     

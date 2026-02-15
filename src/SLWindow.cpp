@@ -9,10 +9,11 @@ namespace SL {
 Window::Window(std::unique_ptr<ViewController> vc)
 {
     int window_flags = SDL_WINDOW_OPENGL;
-    if(SDL_CreateWindowAndRenderer(vc->view().frame.w,vc->view().frame.h,window_flags,&backing_window,&renderer) != 0) {
+    if(SDL_CreateWindowAndRenderer(vc->view->frame.w,vc->view->frame.h,window_flags,&backing_window,&renderer) != 0) {
         auto e = SDL_GetError();
         throw std::runtime_error(std::format("Failed to create backing window: {}",e));
     }
+    setContentVC(std::move(vc));
 }
 
 Window::~Window()
@@ -31,6 +32,13 @@ Window& Window::operator=(Window&& other) noexcept
     std::swap(backing_window,other.backing_window);
     std::swap(renderer,other.renderer);
     return *this;
+}
+
+void Window::setContentVC(std::unique_ptr<ViewController> vc)
+{
+    content_vc = std::move(vc);
+    content_view = content_vc->view;
+    content_vc->next_responder = this;
 }
 
 void Window::sendEvent(const SDL_Event& event)
@@ -143,7 +151,7 @@ void Window::displayIfNeeded()
     SDL_SetRenderDrawColor(renderer,BLACK.r,BLACK.g,BLACK.b,SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer);
     if (content_vc) {
-        content_vc->view().draw(renderer);
+        content_vc->view->draw(renderer);
     }
     else if(content_view) {
         content_view->draw(renderer);
