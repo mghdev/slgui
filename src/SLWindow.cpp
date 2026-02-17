@@ -51,9 +51,16 @@ void Window::sendEvent(const SDL_Event& event)
         case SDL_WINDOWEVENT:
             break;
         case SDL_KEYDOWN:
-        case SDL_KEYUP:
+            if(event.key.repeat) {
+                break;
+            }
             if(first_responder) {
                 first_responder->keyDown(event);
+            }
+            break;
+        case SDL_KEYUP:
+            if(first_responder) {
+                first_responder->keyUp(event);
             }
             break;
         case SDL_MOUSEMOTION: {
@@ -150,12 +157,7 @@ void Window::displayIfNeeded()
 {
     SDL_SetRenderDrawColor(renderer,BLACK.r,BLACK.g,BLACK.b,SDL_ALPHA_OPAQUE);
     SDL_RenderClear(renderer);
-    if (content_vc) {
-        content_vc->view->draw(renderer);
-    }
-    else if(content_view) {
-        content_view->draw(renderer);
-    }
+    content_view->draw(renderer,content_view->frame,content_view->frame);
     SDL_RenderPresent(renderer);
 }
 

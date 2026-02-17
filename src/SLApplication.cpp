@@ -16,6 +16,8 @@ Application::~Application()
 
 int Application::run()
 {
+    main_window->displayIfNeeded();
+    
     SDL_Event sdl_event;
     bool running = true;
     while (running && SDL_WaitEvent(&sdl_event))

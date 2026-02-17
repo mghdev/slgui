@@ -18,7 +18,7 @@ protected:
     Uint8 dragging_mouse_mask = 0;
 public:
     std::shared_ptr<View> view;
-    std::vector<std::unique_ptr<ViewController>> children;
+    std::vector<std::unique_ptr<ViewController>> children; // ViewControllers are owned by their parent vc (or the window in case of root)
     ViewController* parent = nullptr;
 
     ViewController(Rect r);

@@ -21,4 +21,7 @@ add_library(${TARGET_NAME} ${SOURCE_FILES})
 target_include_directories(${TARGET_NAME} PRIVATE 
     ${SLGUI_INCLUDE_DIRS})
 
-target_link_libraries(${TARGET_NAME} ${SDL2_LIBRARIES} SDL2_image)
+find_package(SDL2 CONFIG REQUIRED)
+find_package(SDL2_image REQUIRED)
+    
+target_link_libraries(${TARGET_NAME} ${SDL2_LIBRARIES} SDL2_image::SDL2_image)

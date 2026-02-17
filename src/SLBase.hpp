@@ -174,7 +174,10 @@ struct Color
 {
     uint8_t r=0,g=0,b=0,a=0;
 };
-static constexpr Color BLACK = {0,0,0,0};
+
+static constexpr Color WHITE = {255,255,255,255};
+static constexpr Color BLACK = {0,0,0,255};
+static constexpr Color DARKMODE_BACKGROUND = {29,30,32,255};
 
 } //namespace SL
 

@@ -17,13 +17,16 @@ class View : public Responder
 protected:
     bool needs_display = true;
 public:
-    Window* window;
-    View* superview;
-    Rect frame; // Placement within superview's coordinate system
+    Window* window = nullptr;
+    View* superview = nullptr;
+    Rect frame; // Placement within superview's coordinate system (root view's frame is the same as the window's rect)
     Rect bounds;  // Rect within own coordinate system that is currently aligned with frame.
     
     std::vector<std::shared_ptr<View>> subviews; //ownership of subviews can be shared between superview and view controller
-    float z_position = 0.0f;
+    
+    bool is_hidden = false;
+    double z_position = 0.0f;
+    Color background_color = BLACK;
     
     View(Rect rect);
     
@@ -39,7 +42,12 @@ public:
     virtual bool isDescendantOf(const View& other) const;
     virtual View* closestSharedAncestor(const View& other);
     
-    virtual void draw(SDL_Renderer* renderer, const Point& offset = {0,0});
+    // The main draw call does some rect transforms then calls, in order: drawBackground, drawContent, drawSubviews
+    // The intent is for subclasses of SL::View to override drawContent to perform custom drawing.
+    virtual void draw(SDL_Renderer* renderer, const Rect& visible_frame, const Rect& window_coords);
+    virtual void drawBackground(SDL_Renderer* renderer, const Rect& visible_bounds, const Rect& window_coords);
+    virtual void drawContent(SDL_Renderer* renderer, const Rect& visible_bounds, const Rect& window_coords);
+    virtual void drawSubviews(SDL_Renderer* renderer, const Rect& visible_bounds, const Rect& window_coords);
 };
 
 } //namespace SL
