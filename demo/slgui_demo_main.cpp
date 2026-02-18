@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     auto vc = std::make_unique<ColorCycler>(SL::Rect{0,0,960,720});
     auto vc2 = std::make_unique<ColorCycler>(SL::Rect{100,100,50,50});
     auto vc3 = std::make_unique<ColorCycler>(SL::Rect{500,500,42,68});
-    auto vc4 = std::make_unique<ColorCycler>(SL::Rect(20,20,40,60));
+    auto vc4 = std::make_unique<ColorCycler>(SL::Rect{20,20,40,60});
     
     vc2->nextColor();
     vc3->nextColor();

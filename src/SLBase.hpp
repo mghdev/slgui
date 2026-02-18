@@ -146,10 +146,10 @@ typedef RectF Rect;
 template <typename T>
 _Rect<T> rectFromPoints(const _Point<T>& a,const _Point<T>& b)
 {
-    auto x = std::min(a.x,b.x);
-    auto y = std::min(a.y,b.y);
-    auto w = std::max(a.x,b.x) - x;
-    auto h = std::max(a.y,b.y) - y;
+    auto x = std::fmin(a.x,b.x);
+    auto y = std::fmin(a.y,b.y);
+    auto w = std::fmax(a.x,b.x) - x;
+    auto h = std::fmax(a.y,b.y) - y;
     return {x,y,w,h};
 }
 

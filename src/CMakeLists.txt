@@ -18,6 +18,11 @@ list(APPEND SOURCE_FILES
 
 add_library(${TARGET_NAME} ${SOURCE_FILES})
 
+# find brew-installed standard libs
+if(APPLE)
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib/c++")
+endif()
+
 target_include_directories( ${TARGET_NAME} PRIVATE 
                             ${SLGUI_INCLUDE_DIRS})
 
