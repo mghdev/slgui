@@ -1,7 +1,7 @@
 #ifndef SILHOUETTE_INCLUDE_EVENT_H_
 #define SILHOUETTE_INCLUDE_EVENT_H_
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 namespace SL {
 

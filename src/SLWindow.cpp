@@ -9,7 +9,13 @@ namespace SL {
 Window::Window(std::unique_ptr<ViewController> vc)
 {
     int window_flags = SDL_WINDOW_OPENGL;
-    if(SDL_CreateWindowAndRenderer(vc->view->frame.w,vc->view->frame.h,window_flags,&backing_window,&renderer) != 0) {
+    auto success = SDL_CreateWindowAndRenderer( "",
+                                                vc->view->frame.w,
+                                                vc->view->frame.h,
+                                                window_flags,
+                                                &backing_window,
+                                                &renderer);
+    if(!success) {
         auto e = SDL_GetError();
         throw std::runtime_error(std::format("Failed to create backing window: {}",e));
     }
@@ -48,9 +54,7 @@ void Window::sendEvent(const SDL_Event& event)
     }
     switch (event.type)
     {
-        case SDL_WINDOWEVENT:
-            break;
-        case SDL_KEYDOWN:
+        case SDL_EVENT_KEY_DOWN:
             if(event.key.repeat) {
                 break;
             }
@@ -58,16 +62,16 @@ void Window::sendEvent(const SDL_Event& event)
                 first_responder->keyDown(event);
             }
             break;
-        case SDL_KEYUP:
+        case SDL_EVENT_KEY_UP:
             if(first_responder) {
                 first_responder->keyUp(event);
             }
             break;
-        case SDL_MOUSEMOTION: {
-            int x,y;
+        case SDL_EVENT_MOUSE_MOTION: {
+            float x,y;
             auto state = SDL_GetMouseState(&x,&y);
             if(state == 0) {
-                auto v = content_view->hitTest(PointCast<double,int>({x,y}));
+                auto v = content_view->hitTest({x,y});
                 if(!v) {
                     break;
                 }
@@ -86,8 +90,8 @@ void Window::sendEvent(const SDL_Event& event)
             }
             break;
         }
-        case SDL_MOUSEBUTTONDOWN: {
-            auto v = content_view->hitTest(PointCast<double,int>({event.button.x,event.button.y}));
+        case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+            auto v = content_view->hitTest({event.button.x,event.button.y});
             switch (event.button.button)
             {
                 case SDL_BUTTON_LEFT:
@@ -103,8 +107,8 @@ void Window::sendEvent(const SDL_Event& event)
                     break;
             }
         }
-        case SDL_MOUSEBUTTONUP: {
-            auto v = content_view->hitTest(PointCast<double,int>({event.button.x,event.button.y}));
+        case SDL_EVENT_MOUSE_BUTTON_UP: {
+            auto v = content_view->hitTest({event.button.x,event.button.y});
             if(!v) {
                 break;
             }
@@ -124,10 +128,10 @@ void Window::sendEvent(const SDL_Event& event)
             }
             break;
         }
-        case SDL_MOUSEWHEEL: {
-            int x,y;
+        case SDL_EVENT_MOUSE_WHEEL: {
+            float x,y;
             SDL_GetMouseState(&x,&y);
-            auto v = content_view->hitTest(PointCast<double,int>({x,y}));
+            auto v = content_view->hitTest({x,y});
             if(!v) {
                 break;
             }
@@ -166,7 +170,7 @@ void Window::toggleFullscreen()
     if (!in_fullscreen) {
         SDL_GetWindowPosition(backing_window,&last_windowed_rect.x,&last_windowed_rect.y);
         SDL_GetWindowSize(backing_window,&last_windowed_rect.w,&last_windowed_rect.h);
-        SDL_SetWindowFullscreen(backing_window,SDL_WINDOW_FULLSCREEN_DESKTOP);
+        SDL_SetWindowFullscreen(backing_window,SDL_WINDOW_FULLSCREEN);
         in_fullscreen = true;
     }
     else {

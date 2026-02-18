@@ -21,4 +21,6 @@ add_library(${TARGET_NAME} ${SOURCE_FILES})
 target_include_directories(${TARGET_NAME} PRIVATE 
     ${SLGUI_INCLUDE_DIRS})
 
-target_link_libraries(${TARGET_NAME} ${SDL2_LIBRARIES})
+
+
+target_link_libraries(${TARGET_NAME} SDL3_ttf::SDL3_ttf SDL3::SDL3)

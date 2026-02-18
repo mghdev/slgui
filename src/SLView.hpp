@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "SLBase.hpp"
 #include "SLEvent.hpp"

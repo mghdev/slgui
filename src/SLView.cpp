@@ -168,7 +168,7 @@ void View::drawBackground(SDL_Renderer* renderer, const Rect& visible_bounds, co
     SDL_GetRenderDrawColor(renderer,&saved.r,&saved.g,&saved.b,&saved.a);
     
     SDL_SetRenderDrawColor(renderer,background_color.r,background_color.g,background_color.b,background_color.a);
-    auto sdl = SDL_Rect(window_coords.x,window_coords.y,window_coords.w,window_coords.h);
+    auto sdl = SDL_FRect(window_coords.x,window_coords.y,window_coords.w,window_coords.h);
     SDL_RenderFillRect(renderer,&sdl);
     
     SDL_SetRenderDrawColor(renderer,saved.r,saved.g,saved.b,saved.a);

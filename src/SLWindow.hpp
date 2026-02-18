@@ -2,7 +2,7 @@
 #define SILHOUETTE_INCLUDE_WINDOW_H_
 
 #include <memory>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "SLBase.hpp"
 #include "SLEvent.hpp"

@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include "SLEvent.hpp"
 #include "SLWindow.hpp"

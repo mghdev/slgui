@@ -26,21 +26,21 @@ public:
         nextColor();
     }
     virtual void keyDown(const SDL_Event& event) override {
-        switch(event.key.keysym.sym) {
-            case SDLK_w:
-                setColorIdx(0);
+        switch(event.key.key) {
+            case SDLK_W:
+                setColorIdx(4);
                 break;
-            case SDLK_r:
+            case SDLK_R:
                 setColorIdx(1);
                 break;
-            case SDLK_g:
+            case SDLK_G:
                 setColorIdx(2);
                 break;
-            case SDLK_b:
+            case SDLK_B:
                 setColorIdx(3);
                 break;
-            case SDLK_n:
-                setColorIdx(4);
+            case SDLK_N:
+                setColorIdx(0);
                 break;
             case SDLK_SPACE:
                 nextColor();
