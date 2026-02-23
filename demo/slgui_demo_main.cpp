@@ -16,7 +16,7 @@ protected:
     }
     
 public:
-    ColorCycler(SL::Rect r) : SL::ViewController(r) {
+    ColorCycler(SL::Rect r, int idx = 0) : SL::ViewController(r), color_idx(idx) {
         view->background_color = colors[color_idx];
     }
     void nextColor() {
@@ -55,16 +55,9 @@ public:
 int main(int argc, char** argv)
 {
     auto vc = std::make_unique<ColorCycler>(SL::Rect{0,0,960,720});
-    auto vc2 = std::make_unique<ColorCycler>(SL::Rect{100,100,50,50});
-    auto vc3 = std::make_unique<ColorCycler>(SL::Rect{500,500,42,68});
-    auto vc4 = std::make_unique<ColorCycler>(SL::Rect{20,20,40,60});
-    
-    vc2->nextColor();
-    vc3->nextColor();
-    vc3->nextColor();
-    vc4->nextColor();
-    vc4->nextColor();
-    vc4->nextColor();
+    auto vc2 = std::make_unique<ColorCycler>(SL::Rect{100,100,100,100},1);
+    auto vc3 = std::make_unique<ColorCycler>(SL::Rect{500,500,42,68},2);
+    auto vc4 = std::make_unique<ColorCycler>(SL::Rect{30,30,40,40},3);
     
     vc2->addChild(std::move(vc4));
     vc->addChild(std::move(vc2));
