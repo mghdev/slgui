@@ -5,9 +5,9 @@
 
 namespace SL {
 
-ViewController::ViewController(Rect r) : ViewController(std::make_shared<View>(r))
+ViewController::ViewController(Rect r) : ViewController(std::make_shared<View>(r.size()))
 {
-    
+    view->setFrame(r);
 }
 
 ViewController::ViewController(std::shared_ptr<View> view) : view(view)

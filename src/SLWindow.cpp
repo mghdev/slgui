@@ -4,7 +4,11 @@
 #include <format> //format
 #include <utility> //exchange, swap
 
+#include "SLGeometry.hpp"
+
 namespace SL {
+
+constexpr Rect DEFAULT_DIRTY_RECT = {0,0,0,0};
 
 Window::Window(std::unique_ptr<ViewController> vc)
 {
@@ -20,6 +24,7 @@ Window::Window(std::unique_ptr<ViewController> vc)
         throw std::runtime_error(std::format("Failed to create backing window: {}",e));
     }
     setContentVC(std::move(vc));
+    setDirtyRect(content_view->frame);
 }
 
 Window::~Window()
@@ -45,6 +50,7 @@ void Window::setContentVC(std::unique_ptr<ViewController> vc)
     content_vc = std::move(vc);
     content_view = content_vc->view;
     content_vc->next_responder = this;
+    content_vc->view->setWindow(this);
 }
 
 void Window::sendEvent(const SDL_Event& event)
@@ -157,12 +163,40 @@ bool Window::makeFirstResponder(Responder& responder)
     return true;
 }
 
+void Window::setDirtyRect(Rect r)
+{
+    if(dirty_rect == DEFAULT_DIRTY_RECT) {
+        dirty_rect = std::move(r);
+    }
+    else {
+        dirty_rect = superRect(dirty_rect,r);
+    }
+}
+
+void drawAllIfNeeded(SDL_Renderer* renderer, View* v)
+{
+    v->drawIfNeeded(renderer);
+    for(auto& subview : v->subviews) {
+        drawAllIfNeeded(renderer,subview.get());
+    }
+}
+
 void Window::displayIfNeeded()
 {
-    SDL_SetRenderDrawColor(renderer,BLACK.r,BLACK.g,BLACK.b,SDL_ALPHA_OPAQUE);
-    SDL_RenderClear(renderer);
-    content_view->draw(renderer,content_view->frame,content_view->frame);
+    if(!content_view.get() || dirty_rect == DEFAULT_DIRTY_RECT) {
+        return;
+    }
+    
+    drawAllIfNeeded(renderer,content_view.get());
+    
+    SDL_SetRenderTarget(renderer,NULL);
+    
+    auto r = intersection(dirty_rect,content_view->frame);
+    content_view->display(renderer,r,r);
+    
     SDL_RenderPresent(renderer);
+    
+    dirty_rect = DEFAULT_DIRTY_RECT;
 }
 
 void Window::toggleFullscreen()

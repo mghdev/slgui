@@ -8,11 +8,55 @@
 
 namespace SL {
 
-View::View(Rect rect) : 
-    frame(rect), bounds(0,0,rect.w,rect.h)
+Rect transformToSuperview(Rect r, const View& v)
+{
+    auto x_scale = v.frame.w / v.bounds.w;
+    auto y_scale = v.frame.h / v.bounds.h;
+    auto x_offset = v.bounds.x * x_scale + v.frame.x;
+    auto y_offset = v.bounds.y * y_scale + v.frame.y;
+    return r.transform({x_offset,y_offset},{x_scale,y_scale});
+}
+
+SDL_FRect toSDLRect(Rect r)
+{
+    return SDL_FRect(r.x,r.y,r.w,r.h);
+}
+
+View::View(Vec2F size) : 
+    frame({0,0,size.x,size.y}), bounds(0,0,size.x,size.y), view_size(size)
 {
     
 }
+
+void View::requestDisplay()
+{
+    needs_redraw = true;
+    if(window) {
+        auto r = transformRectTo(bounds,nullptr);
+        window->setDirtyRect(r);
+    }
+}
+
+void View::setFrame(Rect r) 
+{
+    if(window) {
+        auto dirty = superRect(r,frame);
+        if(superview) {
+            dirty = superview->transformRectTo(dirty,nullptr);
+        }
+        window->setDirtyRect(dirty);
+    }
+    frame=r;
+}
+
+void View::setBounds(Rect r)
+{
+    if(window) {
+        window->setDirtyRect(transformRectTo(bounds,nullptr));
+    }
+    bounds = r;
+}
+
 
 View* View::hitTest(Point p)
 {
@@ -29,15 +73,6 @@ View* View::hitTest(Point p)
         return this;
     }
     return nullptr;
-}
-
-Rect transformToSuperview(Rect r, const View& v)
-{
-    auto x_scale = v.frame.w / v.bounds.w;
-    auto y_scale = v.frame.h / v.bounds.h;
-    auto x_offset = v.bounds.x * x_scale + v.frame.x;
-    auto y_offset = v.bounds.y * y_scale + v.frame.y;
-    return r.transform({x_offset,y_offset},{x_scale,y_scale});
 }
 
 Rect View::transformRectFrom(Rect r, const View* other) const
@@ -88,16 +123,15 @@ Rect View::transformRectTo(Rect r, const View* other) const
     return r;
 }
 
-
-void View::setFrame(Rect r) 
-{
-    frame=r;
-    needs_display = true;
-}
-
 void View::setWindow(Window* w)
 {
     window = w;
+    if(texture) {
+        SDL_DestroyTexture(texture);
+        texture = nullptr;
+    }
+    requestDisplay();
+    
     for(auto& view : subviews) {
         view->setWindow(w);
     }
@@ -107,7 +141,6 @@ void View::addSubview(std::shared_ptr<View> v)
 {
     v->next_responder = this;
     v->superview = this;
-    needs_display = needs_display | v->needs_display;
     subviews.push_back(v);
 }
 
@@ -142,54 +175,62 @@ View* View::closestSharedAncestor(const View& other)
     return nullptr;
 }
 
-void View::draw(SDL_Renderer* renderer, const Rect& visible_frame, const Rect& window_coords)
+void View::drawIfNeeded(SDL_Renderer* renderer)
 {
-    if(is_hidden || visible_frame.w <= 0 || visible_frame.h <= 0) {
+    if(!needs_redraw) {
+        return;
+    }
+    
+    if(!texture) {
+        texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA32,SDL_TEXTUREACCESS_TARGET,view_size.x,view_size.y);
+    }
+    
+    SDL_SetRenderTarget(renderer,texture);
+    drawBackground(renderer);
+    drawContent(renderer);
+    needs_redraw = false;
+}
+
+void View::drawBackground(SDL_Renderer* renderer)
+{
+    SDL_SetRenderDrawColor(renderer,background_color.r,background_color.g,background_color.b,background_color.a);
+    SDL_RenderClear(renderer);
+}
+
+void View::drawContent(SDL_Renderer* renderer)
+{
+    // subclasses of SL::View can override this method to do custom drawing
+}
+
+void View::display(SDL_Renderer* renderer, const Rect& target_frame, const Rect& window_coords)
+{
+    if(is_hidden || target_frame.w <= 0 || target_frame.h <= 0) {
         return;
     }
     
     auto x_scale = bounds.w/frame.w;
     auto y_scale = bounds.h/frame.h;
     auto visible_bounds = Rect{
-        (visible_frame.x-frame.x)*x_scale,
-        (visible_frame.y-frame.y)*y_scale,
-        visible_frame.w*x_scale,
-        visible_frame.h*y_scale
+        (target_frame.x-frame.x)*x_scale,
+        (target_frame.y-frame.y)*y_scale,
+        target_frame.w*x_scale,
+        target_frame.h*y_scale
     };
-    drawBackground(renderer,visible_bounds,window_coords);
-    drawContent(renderer,visible_bounds,window_coords);
-    drawSubviews(renderer,visible_bounds,window_coords);
-    needs_display = false;
-}
-
-void View::drawBackground(SDL_Renderer* renderer, const Rect& visible_bounds, const Rect& window_coords)
-{
-    Color saved;
-    SDL_GetRenderDrawColor(renderer,&saved.r,&saved.g,&saved.b,&saved.a);
     
-    SDL_SetRenderDrawColor(renderer,background_color.r,background_color.g,background_color.b,background_color.a);
-    auto sdl = SDL_FRect(window_coords.x,window_coords.y,window_coords.w,window_coords.h);
-    SDL_RenderFillRect(renderer,&sdl);
+    auto src = toSDLRect(visible_bounds);
+    auto dst = toSDLRect(window_coords);
     
-    SDL_SetRenderDrawColor(renderer,saved.r,saved.g,saved.b,saved.a);
+    SDL_RenderTexture(renderer,texture,&src,&dst);
+    
+    displaySubviews(renderer,visible_bounds,window_coords);
 }
 
-void View::drawContent(SDL_Renderer* renderer, const Rect& visible_bounds, const Rect& window_coords)
-{
-    // subclasses of SL::View can override this method to do custom drawing
-}
-
-void View::drawSubviews(SDL_Renderer* renderer, const Rect& visible_bounds, const Rect& window_coords)
+void View::displaySubviews(SDL_Renderer* renderer, const Rect& visible_bounds, const Rect& window_coords)
 {
     for(auto& subview : subviews) {
-        auto visible_rect = Rect{
-            subview->frame.x,
-            subview->frame.y,
-            std::min(subview->frame.x+subview->frame.w,visible_bounds.x+visible_bounds.w)-subview->frame.x,
-            std::min(subview->frame.y+subview->frame.h,visible_bounds.y+visible_bounds.h)-subview->frame.y
-        };
+        auto visible_rect = intersection(visible_bounds,subview->frame);
         auto subview_window_coords = transformRectTo(visible_rect,nullptr);
-        subview->draw(renderer,visible_rect,subview_window_coords);
+        subview->display(renderer,visible_rect,subview_window_coords);
     }
 }
 

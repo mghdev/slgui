@@ -16,6 +16,7 @@ class Window : public Responder
 protected:
     bool in_fullscreen = false;
     RectI last_windowed_rect;
+    Rect dirty_rect;
 public:
     SDL_Window* backing_window = nullptr;
     SDL_Renderer* renderer = nullptr;
@@ -37,6 +38,7 @@ public:
     void sendEvent(const SDL_Event& event);
     bool makeFirstResponder(Responder& responder);
     
+    void setDirtyRect(Rect r);
     void displayIfNeeded();
     void toggleFullscreen();
 };

@@ -59,28 +59,30 @@ int main(int argc, char** argv)
 
 That's the basic setup! 
 
-slgui projects are expected to use SDL to render their content. To draw things, set your custom view controller's `view` to a subclass of SL::View and override SL::View::drawContent(...)
+slgui projects are expected to use SDL to render their content. To draw things, subclass SL::View and override SL::View::drawContent(...)
 
 ```
 #include "SLView.hpp"
 class DerivedView : public SL::View
 {
 protected:
-	SDL_Texture* texture;
+    int state = 0;
 public:
-	virtual void drawContent(SDL_Renderer* renderer, const Rect& visible_bounds, const Rect& window_coords) override {
+    using SL::View::View;
+	virtual void drawContent(SDL_Renderer* renderer) override {
 		/* 
-		Use SDL_Render calls to draw whatever you want
-		Most likely, have the view's appearance stored in a SDL_Texture and simply...
-		SDL_RenderCopy(renderer,texture,...);
-		... from visible_bounds to window_coords
+		Use SDL_Render calls to draw whatever you want to the view's render target.
+        The window will handle displaying the results.
 		*/
 	}
 	
-	/*
-	Add whatever methods you need to update texture
-	*/
+	void someMethodThatChangesContent(int val) {
+        /*
+        After modifying the content of your custom view, 
+        call requestDisplay() to inform the window that your view needs to be redrawn
+        */
+        state = val;
+        requestDisplay();
+    }
 }
 ```
-
-Other implementations are possible, just be careful not to draw outside the window_coords Rect.
