@@ -31,6 +31,7 @@ Window::~Window()
 {
     SDL_DestroyWindow(backing_window);
     SDL_DestroyRenderer(renderer);
+    SDL_DestroyTexture(content_texture);
 }
 
 Window::Window(Window&& other) noexcept : 
@@ -51,6 +52,8 @@ void Window::setContentVC(std::unique_ptr<ViewController> vc)
     content_view = content_vc->view;
     content_vc->next_responder = this;
     content_vc->view->setWindow(this);
+    SDL_DestroyTexture(content_texture);
+    content_texture = nullptr;
 }
 
 void Window::sendEvent(const SDL_Event& event)
@@ -189,11 +192,16 @@ void Window::displayIfNeeded()
     
     drawAllIfNeeded(renderer,content_view.get());
     
-    SDL_SetRenderTarget(renderer,NULL);
+    if(!content_texture) {
+        content_texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA32,SDL_TEXTUREACCESS_TARGET,content_view->view_size.x,content_view->view_size.y);
+    }
     
+    SDL_SetRenderTarget(renderer,content_texture);
     auto r = intersection(dirty_rect,content_view->frame);
     content_view->display(renderer,r,r);
     
+    SDL_SetRenderTarget(renderer,NULL);
+    SDL_RenderTexture(renderer,content_texture,NULL,NULL);
     SDL_RenderPresent(renderer);
     
     dirty_rect = DEFAULT_DIRTY_RECT;

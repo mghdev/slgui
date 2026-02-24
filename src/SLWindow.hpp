@@ -17,6 +17,7 @@ protected:
     bool in_fullscreen = false;
     RectI last_windowed_rect;
     Rect dirty_rect;
+    SDL_Texture* content_texture = nullptr;
 public:
     SDL_Window* backing_window = nullptr;
     SDL_Renderer* renderer = nullptr;
