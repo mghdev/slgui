@@ -1,4 +1,7 @@
 #include "SLApplication.hpp"
+
+#include <SDL3_ttf/SDL_ttf.h>
+
 #include "SLWindow.hpp"
 
 namespace SL {
@@ -6,12 +9,14 @@ namespace SL {
 Application::Application(std::unique_ptr<ViewController> vc)
 {
     SDL_Init(0);
+    TTF_Init();
     main_window = std::make_unique<Window>(std::move(vc));
 }
 
 Application::~Application()
 {
 	SDL_Quit();
+    TTF_Quit();
 }
 
 int Application::run()

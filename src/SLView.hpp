@@ -28,7 +28,7 @@ public:
     bool needs_redraw = true;
     bool is_hidden = false;
     double z_position = 0.0f;
-    Color background_color = BLACK;
+    Color background_color = DARKMODE_BACKGROUND;
     
     View(Vec2F size);
     

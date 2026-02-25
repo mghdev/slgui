@@ -1,5 +1,6 @@
 
 #include "SLApplication.hpp"
+#include "SLTextView.hpp"
 
 class LinesView : public SL::View
 {
@@ -79,6 +80,13 @@ int main(int argc, char** argv)
     vc2->addChild(std::move(vc4));
     vc->addChild(std::move(vc2));
     vc->addChild(std::move(vc3));
+    
+    auto t = std::make_shared<SL::TextView>(SL::Vec2F{400,200});
+    t->setString("Hello there.");
+    auto vc5 = std::make_unique<SL::ViewController>(std::move(t));
+    vc5->view->setFrame(SL::Rect{550,50,400,200});
+    
+    vc->addChild(std::move(vc5));
     
     auto app = SL::Application(std::move(vc));
     return app.run();
