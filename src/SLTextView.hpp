@@ -8,17 +8,22 @@
 
 namespace SL {
 
-TTF_Font* defaultFont();
+class TextView;
+class TextViewDelegate
+{
+    virtual void textDidChange(TextView* view) = 0;
+};
 
 class TextView : public View
 {
 protected:
-    std::string string = "";
     TTF_Font* font = nullptr;
+    TTF_TextEngine* rendering_engine = nullptr;
+    TTF_Text* rendered_text = nullptr;
 public:
     Color text_color = WHITE;
     
-    TextView(Vec2F size, TTF_Font* font = nullptr);
+    TextView(Vec2F size, SDL_Renderer* renderer);
     virtual void drawContent(SDL_Renderer* renderer) override;
     
     void setString(std::string s);
@@ -26,6 +31,17 @@ public:
     
     void setFont(TTF_Font* font);
     TTF_Font* getFont();
+    
+    virtual void leftMouseDown(const SDL_Event& e) override {};
+    virtual void otherMouseDown(const SDL_Event& e) override {};
+    virtual void leftMouseUp(const SDL_Event& e) override {};
+    virtual void otherMouseUp(const SDL_Event& e) override {};
+    virtual void leftMouseDragged(const SDL_Event& e) override {};
+    virtual void otherMouseDragged(const SDL_Event& e) override {};
+    virtual void mouseMoved(const SDL_Event& e) override {};
+    
+    virtual void keyDown(const SDL_Event& e) override;
+    virtual void keyUp(const SDL_Event& e) override;
 };
 
 } //namespace SL

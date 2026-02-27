@@ -7,40 +7,39 @@ namespace SL {
 extern "C" const char Roboto_Regular_ttf[];
 extern "C" const size_t Roboto_Regular_ttf_size;
 static TTF_Font* _DEFAULT_FONT = nullptr;
-TTF_Font* defaultFont()
+TTF_Font* sharedDefaultFont()
 {
     if(!_DEFAULT_FONT) {
         auto fontio = SDL_IOFromMem((void*)Roboto_Regular_ttf,Roboto_Regular_ttf_size);
-        if(!(_DEFAULT_FONT = TTF_OpenFontIO(fontio,true,24))) {
-            auto e = SDL_GetError();
-            throw std::runtime_error(std::format("Failed to create backing window: {}",e));
-        }
-        
+        _DEFAULT_FONT = TTF_OpenFontIO(fontio,true,20);
+        TTF_SetFontWrapAlignment(_DEFAULT_FONT,TTF_HORIZONTAL_ALIGN_CENTER);
     }
     return _DEFAULT_FONT;
 }
 
-TextView::TextView(Vec2F size, TTF_Font* new_font) : View(size), font(new_font)
+TextView::TextView(Vec2F size, SDL_Renderer* renderer) : 
+    View(size), 
+    font(sharedDefaultFont()), 
+    rendering_engine(TTF_CreateRendererTextEngine(renderer)),
+    rendered_text(TTF_CreateText(rendering_engine,font,"",0))
 {
+    
 }
 
 void TextView::drawContent(SDL_Renderer* renderer)
 {
-    auto text_surface = TTF_RenderText_Solid_Wrapped(getFont(),string.c_str(),0,SDL_Color{text_color.r,text_color.g,text_color.b,text_color.a},view_size.x);
-    auto rendered_text = SDL_CreateTextureFromSurface(renderer,text_surface);
-    auto rect = SDL_FRect(0,0,text_surface->w,text_surface->h);
-    SDL_RenderTexture(renderer,rendered_text,&rect,&rect);
+    TTF_DrawRendererText(rendered_text,0,0);
 }
 
 void TextView::setString(std::string s)
 {
-    string = std::move(s);
+    TTF_SetTextString(rendered_text,s.c_str(),s.length());
     requestDisplay();
 }
 
 const std::string& TextView::getString()
 {
-    return string;
+    return std::string(rendered_text->text);
 }
 
 void TextView::setFont(TTF_Font* new_font)
@@ -51,9 +50,19 @@ void TextView::setFont(TTF_Font* new_font)
 TTF_Font* TextView::getFont()
 {
     if(!font) {
-        font = defaultFont();
+        font = sharedDefaultFont();
     }
     return font;
+}
+
+void TextView::keyDown(const SDL_Event& e)
+{
+    
+}
+
+void TextView::keyUp(const SDL_Event& e)
+{
+    
 }
 
 

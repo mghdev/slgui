@@ -6,21 +6,27 @@
 
 namespace SL {
 
-Application::Application(std::unique_ptr<ViewController> vc)
+Application::Application(std::shared_ptr<AppDelegate> delegate)
 {
     SDL_Init(0);
     TTF_Init();
-    main_window = std::make_unique<Window>(std::move(vc));
+    delegate = std::move(delegate);
+    delegate->appDidInitialize(this);
 }
 
 Application::~Application()
 {
+    delegate->appWillTerminate(this);
 	SDL_Quit();
     TTF_Quit();
 }
 
 int Application::run()
 {
+    if(!main_window) {
+        return 1;
+    }
+    
     main_window->displayIfNeeded();
     
     SDL_Event sdl_event;

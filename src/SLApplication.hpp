@@ -13,14 +13,22 @@
 
 namespace SL {
 
-class Window;
+class Application;
+class AppDelegate
+{
+public:
+    virtual void appDidInitialize(Application* app) {};
+    virtual void appWillTerminate(Application* app) {};    
+};
+
 class Application : public Responder
 {
 protected:
 public:
-    std::unique_ptr<Window> main_window;
+    std::unique_ptr<AppDelegate> delegate = nullptr;
+    std::unique_ptr<Window> main_window = nullptr;
     
-    Application(std::unique_ptr<ViewController> vc);
+    Application(std::shared_ptr<AppDelegate> delegate);
     ~Application();
     
     int run();
