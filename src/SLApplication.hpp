@@ -25,7 +25,7 @@ class Application : public Responder
 {
 protected:
 public:
-    std::unique_ptr<AppDelegate> delegate = nullptr;
+    std::shared_ptr<AppDelegate> delegate;
     std::unique_ptr<Window> main_window = nullptr;
     
     Application(std::shared_ptr<AppDelegate> delegate);

@@ -6,11 +6,11 @@
 
 namespace SL {
 
-Application::Application(std::shared_ptr<AppDelegate> delegate)
+Application::Application(std::shared_ptr<AppDelegate> new_delegate)
 {
     SDL_Init(0);
     TTF_Init();
-    delegate = std::move(delegate);
+    delegate = std::move(new_delegate);
     delegate->appDidInitialize(this);
 }
 
