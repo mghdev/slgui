@@ -1,7 +1,7 @@
 #include "SLView.hpp"
 
 #include <algorithm> //erase_if
-// #include <stdexcept> //runtime_error, invalid_argument
+#include <utility> //exchange
 
 #include "SLGeometry.hpp"
 #include "SLWindow.hpp"
@@ -23,7 +23,27 @@ SDL_FRect toSDLRect(Rect r)
 }
 
 View::View(Vec2F size) : 
-    frame({0,0,size.x,size.y}), bounds(0,0,size.x,size.y), view_size(size)
+    frame(0,0,size.x,size.y), bounds(0,0,size.x,size.y), view_size(size)
+{
+    
+}
+
+View::~View()
+{
+    SDL_DestroyTexture(texture);
+}
+
+View::View(View&& other) noexcept :
+    view_size(other.view_size),
+    texture(std::exchange(other.texture,nullptr)),
+    window(             std::move(other.window)),
+    superview(          std::move(other.superview)),
+    frame(              std::move(other.frame)),
+    bounds(             std::move(other.bounds)),
+    subviews(           std::move(other.subviews)),
+    needs_redraw(       std::move(other.needs_redraw)),
+    is_hidden(          std::move(other.is_hidden)),
+    background_color(   std::move(other.background_color))
 {
     
 }
@@ -40,12 +60,20 @@ void View::requestDisplay()
 void View::setFrame(Rect r) 
 {
     if(window) {
+        // we don't need to re-draw the view's content
+        // so just update the window's dirty rect without setting this->needs_redraw
         auto dirty = superRect(r,frame);
         if(superview) {
             dirty = superview->transformRectTo(dirty,nullptr);
         }
         window->setDirtyRect(dirty);
     }
+    
+    // scale the bounds so that relative size stays fixed
+    auto x_scale = r.w/frame.w;
+    auto y_scale = r.h/frame.h;
+    bounds = {bounds.x,bounds.y,bounds.w*x_scale,bounds.h*y_scale};
+    
     frame=r;
 }
 
@@ -208,6 +236,7 @@ void View::display(SDL_Renderer* renderer, const Rect& target_frame, const Rect&
         return;
     }
     
+    // convert target_frame to internal coordinate system
     auto x_scale = bounds.w/frame.w;
     auto y_scale = bounds.h/frame.h;
     auto visible_bounds = Rect{
@@ -217,10 +246,19 @@ void View::display(SDL_Renderer* renderer, const Rect& target_frame, const Rect&
         target_frame.h*y_scale
     };
     
-    auto src = toSDLRect(visible_bounds);
-    auto dst = toSDLRect(window_coords);
+    // size of content is fixed at this->view_size, but visible_bounds may extend farther
+    auto left = clamp(0.0,visible_bounds.x,view_size.x);
+    auto right = clamp(0.0,visible_bounds.x+visible_bounds.w,view_size.x);
+    auto top = clamp(0.0,visible_bounds.y,view_size.y);
+    auto bottom = clamp(0.0,visible_bounds.y+visible_bounds.h,view_size.y);
     
-    SDL_RenderTexture(renderer,texture,&src,&dst);
+    auto src = Rect{left,top,right-left,bottom-top};
+    auto dst = transformRectTo(src,nullptr);
+    
+    auto sdl_src = toSDLRect(src);
+    auto sdl_dst = toSDLRect(dst);
+    
+    SDL_RenderTexture(renderer,texture,&sdl_src,&sdl_dst);
     
     displaySubviews(renderer,visible_bounds,window_coords);
 }

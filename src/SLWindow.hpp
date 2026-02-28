@@ -18,6 +18,7 @@ protected:
     RectI last_windowed_rect;
     Rect dirty_rect;
     SDL_Texture* content_texture = nullptr;
+    Color background_color = DARKMODE_BACKGROUND;
 public:
     SDL_Window* backing_window = nullptr;
     SDL_Renderer* renderer = nullptr;
@@ -34,6 +35,7 @@ public:
     Window(Window&& other) noexcept;
     Window& operator=(Window&& other) noexcept;
     
+    void setBackgroundColor(Color color);
     void setContentVC(std::unique_ptr<ViewController> vc);
     
     void sendEvent(const SDL_Event& event);

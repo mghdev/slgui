@@ -71,26 +71,31 @@ class DemoAppDelegate : public SL::AppDelegate
 {
 public:
     void appDidInitialize(SL::Application* app) override {
-        // Set up the view hierarchy
+        // Set up the window and view hierarchy
+        
+        // Often, the root view in the hierarchy should simply be a container for subviews
         auto root_vc = std::make_unique<SL::ViewController>(SL::Rect{0,0,960,720});
         root_vc->view->background_color = SL::Color{110,110,110,255};
-        auto vc2 = std::make_unique<ColorCycler>(SL::Rect{600,100,100,100},1);
-
-        auto vc4 = std::make_unique<ColorCycler>(std::make_shared<LinesView>(SL::Vec2F{40,40}),3);
-        vc4->view->setFrame(SL::Rect{30,30,40,40});
         
-        vc2->addChild(std::move(vc4));
+        // Some squares that change colors
+        auto vc2 = std::make_unique<ColorCycler>(SL::Rect{600,100,100,100},1);
+        auto vc3 = std::make_unique<ColorCycler>(std::make_shared<LinesView>(SL::Vec2F{40,40}),3);
+        vc3->view->setFrame(SL::Rect{30,30,40,40});
+        vc2->addChild(std::move(vc3));
         root_vc->addChild(std::move(vc2));
         
+        // The root of the view hierarchy must be constructed before the window
         auto window_ptr = std::make_unique<SL::Window>(std::move(root_vc));
         
-        auto t = std::make_shared<SL::TextView>(SL::Vec2F{500,600},window_ptr->renderer);
-        t->setString("Hello there.\nThis is a TextView.\n\nYou can edit this text.\n\nThe colors of the squares to the right will change if you click on them.");
-        auto vc5 = std::make_unique<SL::ViewController>(std::move(t));
+        // More views can be added after the window is constructed
+        auto tv = std::make_shared<SL::TextView>(SL::Vec2F{500,600},window_ptr->renderer);
+        tv->setString("Hello there.\nThis is a TextView.\n\nYou can edit this text.\n\nThe colors of the squares to the right will change if you click on them.");
+        auto vc5 = std::make_unique<SL::ViewController>(std::move(tv));
         vc5->view->setFrame(SL::Rect{20,20,500,600});
         
         window_ptr->content_vc->addChild(std::move(vc5));
         
+        // Finish by moving the window into app
         app->main_window = std::move(window_ptr);
     }
 };

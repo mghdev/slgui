@@ -33,6 +33,12 @@ protected:
 public:
     TextView(Vec2F size, SDL_Renderer* renderer);
     
+    virtual ~TextView() override;
+    TextView(const TextView&) = delete;
+    TextView& operator=(const TextView&) = delete;
+    TextView(TextView&& other) noexcept;
+    TextView& operator=(TextView&& other) = delete;
+    
     virtual void drawContent(SDL_Renderer* renderer) override;
     
     void setAllowsEditing(bool val);

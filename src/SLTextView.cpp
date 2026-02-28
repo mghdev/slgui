@@ -1,6 +1,7 @@
 #include "SLTextView.hpp"
 
-#include <cstring>
+#include <utility> //exchange
+#include <cstring> //strlen
 #include "SLWindow.hpp"
 
 namespace SL {
@@ -11,7 +12,7 @@ static TTF_Font* _DEFAULT_FONT = nullptr;
 TTF_Font* sharedDefaultFont()
 {
     if(!_DEFAULT_FONT) {
-        auto fontio = SDL_IOFromMem((void*)SpaceMono_Regular_ttf,SpaceMono_Regular_ttf_size);
+        auto fontio = SDL_IOFromConstMem((void*)SpaceMono_Regular_ttf,SpaceMono_Regular_ttf_size);
         _DEFAULT_FONT = TTF_OpenFontIO(fontio,true,20);
     }
     return _DEFAULT_FONT;
@@ -25,6 +26,25 @@ TextView::TextView(Vec2F size, SDL_Renderer* renderer) :
 {
     TTF_SetTextWrapWidth(internal_text,size.x);
     TTF_SetTextWrapWhitespaceVisible(internal_text,true);
+}
+
+TextView::~TextView()
+{
+    // Font is not owned by the TextView
+    TTF_DestroyText(internal_text);
+    TTF_DestroyRendererTextEngine(rendering_engine);
+}
+
+TextView::TextView(TextView&& other) noexcept :
+    View(std::move(other)),
+    rendering_engine(   std::exchange(other.rendering_engine,nullptr)),
+    internal_text(      std::exchange(other.internal_text,nullptr)),
+    allows_editing(     std::move(other.allows_editing)),
+    currently_editing(  std::move(other.currently_editing)),
+    font(               std::move(other.font)),
+    cursor(             std::move(other.cursor))
+{
+    
 }
 
 void TextView::drawCursor(SDL_Renderer* renderer)

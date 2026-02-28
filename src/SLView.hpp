@@ -21,16 +21,24 @@ public:
     View* superview = nullptr;
     Rect frame; // Placement within superview's coordinate system (root view's frame is the same as the window's rect)
     Rect bounds;  // Rect within own coordinate system that is currently aligned with frame.
-    Vec2F const view_size;  //size of the view in its internal coordinate system
+    
+    //Size of the view's content in its internal coordinate system
+    //This is fixed on view construction
+    Vec2F const view_size;  
     
     std::vector<std::shared_ptr<View>> subviews; //ownership of subviews can be shared between superview and view controller
     
     bool needs_redraw = true;
     bool is_hidden = false;
-    double z_position = 0.0f;
     Color background_color = DARKMODE_BACKGROUND;
     
     View(Vec2F size);
+    
+    virtual ~View();
+    View(const View&) = delete;
+    View& operator=(const View&) = delete;
+    View(View&& other) noexcept;
+    View& operator=(View&& other) = delete;
     
     virtual void requestDisplay();
     virtual void setFrame(Rect r);

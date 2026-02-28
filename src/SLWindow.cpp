@@ -35,16 +35,40 @@ Window::~Window()
     SDL_DestroyTexture(content_texture);
 }
 
-Window::Window(Window&& other) noexcept : 
-    backing_window(std::exchange(other.backing_window,nullptr)),
-    renderer(std::exchange(other.renderer,nullptr))
+Window::Window(Window&& other) noexcept :
+    backing_window( std::exchange(other.backing_window,nullptr)),
+    renderer(       std::exchange(other.renderer,nullptr)),
+    content_texture(std::exchange(other.content_texture,nullptr)),
+    in_fullscreen(      std::move(other.in_fullscreen)),
+    last_windowed_rect( std::move(other.last_windowed_rect)),
+    dirty_rect(         std::move(other.dirty_rect)),
+    background_color(   std::move(other.background_color)),
+    content_vc(         std::move(other.content_vc)),
+    content_view(       std::move(other.content_view)),
+    first_responder(    std::move(other.first_responder))
 {}
 
 Window& Window::operator=(Window&& other) noexcept
 {
     std::swap(backing_window,other.backing_window);
     std::swap(renderer,other.renderer);
+    std::swap(content_texture,other.content_texture);
+    
+    in_fullscreen       = std::move(other.in_fullscreen);
+    last_windowed_rect  = std::move(other.last_windowed_rect);
+    dirty_rect          = std::move(other.dirty_rect);
+    background_color    = std::move(other.background_color);
+    content_vc          = std::move(other.content_vc);
+    content_view        = std::move(other.content_view);
+    first_responder     = std::move(other.first_responder);
+    
     return *this;
+}
+
+void Window::setBackgroundColor(Color color)
+{
+    background_color = color;
+    setDirtyRect(content_view->frame);
 }
 
 void Window::setContentVC(std::unique_ptr<ViewController> vc)
@@ -64,6 +88,13 @@ void Window::sendEvent(const SDL_Event& event)
     }
     switch (event.type)
     {
+        case SDL_EVENT_WINDOW_RESIZED:
+            // the size of the root view's content is fixed, but
+            // but we can scale the size of the window's content texture here
+            content_view->setFrame(Rect(0,0,event.window.data1,event.window.data2));
+            SDL_DestroyTexture(content_texture);
+            content_texture = nullptr;
+            break;
         case SDL_EVENT_TEXT_INPUT:
             first_responder->textInput(event);
             break;
@@ -195,11 +226,15 @@ void Window::displayIfNeeded()
     drawAllIfNeeded(renderer,content_view.get());
     
     if(!content_texture) {
-        content_texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA32,SDL_TEXTUREACCESS_TARGET,content_view->view_size.x,content_view->view_size.y);
+        content_texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA32,SDL_TEXTUREACCESS_TARGET,content_view->frame.w,content_view->frame.h);
     }
     
     SDL_SetRenderTarget(renderer,content_texture);
     auto r = intersection(dirty_rect,content_view->frame);
+    
+    SDL_SetRenderDrawColor(renderer,background_color.r,background_color.g,background_color.b,background_color.a);
+    auto sdl_r = SDL_FRect(r.x,r.y,r.w,r.h);
+    SDL_RenderFillRect(renderer,&sdl_r); //background
     content_view->display(renderer,r,r);
     
     SDL_SetRenderTarget(renderer,NULL);
