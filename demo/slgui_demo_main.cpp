@@ -72,23 +72,22 @@ class DemoAppDelegate : public SL::AppDelegate
 public:
     void appDidInitialize(SL::Application* app) override {
         // Set up the view hierarchy
-        auto root_vc = std::make_unique<ColorCycler>(SL::Rect{0,0,960,720});
-        auto vc2 = std::make_unique<ColorCycler>(SL::Rect{100,100,100,100},1);
-        auto vc3 = std::make_unique<ColorCycler>(SL::Rect{500,500,42,68},2);
+        auto root_vc = std::make_unique<SL::ViewController>(SL::Rect{0,0,960,720});
+        root_vc->view->background_color = SL::Color{110,110,110,255};
+        auto vc2 = std::make_unique<ColorCycler>(SL::Rect{600,100,100,100},1);
 
         auto vc4 = std::make_unique<ColorCycler>(std::make_shared<LinesView>(SL::Vec2F{40,40}),3);
         vc4->view->setFrame(SL::Rect{30,30,40,40});
-
+        
         vc2->addChild(std::move(vc4));
         root_vc->addChild(std::move(vc2));
-        root_vc->addChild(std::move(vc3));
         
         auto window_ptr = std::make_unique<SL::Window>(std::move(root_vc));
         
-        auto t = std::make_shared<SL::TextView>(SL::Vec2F{400,200},window_ptr->renderer);
-        t->setString("Hello there.");
+        auto t = std::make_shared<SL::TextView>(SL::Vec2F{500,600},window_ptr->renderer);
+        t->setString("Hello there.\nThis is a TextView.\n\nYou can edit this text.\n\nThe colors of the squares to the right will change if you click on them.");
         auto vc5 = std::make_unique<SL::ViewController>(std::move(t));
-        vc5->view->setFrame(SL::Rect{550,50,400,200});
+        vc5->view->setFrame(SL::Rect{20,20,500,600});
         
         window_ptr->content_vc->addChild(std::move(vc5));
         

@@ -42,6 +42,9 @@ public:
     void setDirtyRect(Rect r);
     void displayIfNeeded();
     void toggleFullscreen();
+    
+    void startTextInput();
+    void stopTextInput();
 };
 
 } // namespace SL

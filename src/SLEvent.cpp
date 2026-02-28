@@ -17,106 +17,119 @@ bool Responder::resignFirstResponder()
     return true;
 }
 
-void Responder::respondToEvent(const SDL_Event& e)
+void Responder::respondToEvent(const SDL_Event& event)
 {
     if (next_responder) {
-        next_responder->respondToEvent(e);
+        next_responder->respondToEvent(event);
     }
 }
 
-void Responder::leftMouseDown(const SDL_Event& e)
+void Responder::leftMouseDown(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->leftMouseDown(e);
+        next_responder->leftMouseDown(event);
     }
 }
 
-void Responder::rightMouseDown(const SDL_Event& e)
+void Responder::rightMouseDown(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->rightMouseDown(e);
+        next_responder->rightMouseDown(event);
     }
 }
 
-void Responder::otherMouseDown(const SDL_Event& e)
+void Responder::otherMouseDown(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->otherMouseDown(e);
+        next_responder->otherMouseDown(event);
     }
 }
 
 
-void Responder::leftMouseUp(const SDL_Event& e)
+void Responder::leftMouseUp(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->leftMouseUp(e);
+        next_responder->leftMouseUp(event);
     }
 }
 
-void Responder::rightMouseUp(const SDL_Event& e)
+void Responder::rightMouseUp(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->rightMouseUp(e);
+        next_responder->rightMouseUp(event);
     }
 }
 
-void Responder::otherMouseUp(const SDL_Event& e)
+void Responder::otherMouseUp(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->otherMouseUp(e);
+        next_responder->otherMouseUp(event);
     }
 }
 
-void Responder::mouseMoved(const SDL_Event& e)
+void Responder::mouseMoved(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->mouseMoved(e);
+        next_responder->mouseMoved(event);
     }
 }
 
-void Responder::leftMouseDragged(const SDL_Event& e)
+void Responder::leftMouseDragged(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->leftMouseDragged(e);
+        next_responder->leftMouseDragged(event);
     }
 }
 
-void Responder::rightMouseDragged(const SDL_Event& e)
+void Responder::rightMouseDragged(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->rightMouseDragged(e);
+        next_responder->rightMouseDragged(event);
     }
 }
 
-void Responder::otherMouseDragged(const SDL_Event& e)
+void Responder::otherMouseDragged(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->otherMouseDragged(e);
+        next_responder->otherMouseDragged(event);
     }
 }
 
 
-void Responder::scrollWheel(const SDL_Event& e)
+void Responder::scrollWheel(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->scrollWheel(e);
+        next_responder->scrollWheel(event);
     }
 }
 
 
-void Responder::keyDown(const SDL_Event& e)
+void Responder::keyDown(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->keyDown(e);
+        next_responder->keyDown(event);
     }
 }
 
-void Responder::keyUp(const SDL_Event& e)
+void Responder::keyUp(const SDL_Event& event)
 {
     if(next_responder) {
-        next_responder->keyUp(e);
+        next_responder->keyUp(event);
     }
 }
 
+void Responder::keyHold(const SDL_Event& event)
+{
+    if(next_responder) {
+        next_responder->keyHold(event);
+    }
+}
+
+void Responder::textInput(const SDL_Event& event)
+{
+    if(next_responder) {
+        next_responder->textInput(event);
+    }
+}
 
 } //namespace SL

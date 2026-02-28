@@ -30,7 +30,7 @@ function(create_resources dir output)
         file(APPEND ${output} "const unsigned char ${filename}[] = {${filedata}};\nconst unsigned ${filename}_size = sizeof(${filename});\n")
     endforeach()
 endfunction()
-create_resources("assets/font" ${CMAKE_BINARY_DIR}/assets/fonts.c)
+create_resources("assets/fonts" ${CMAKE_BINARY_DIR}/assets/fonts.c)
 
 set(TARGET_NAME slgui)
 add_subdirectory(src)

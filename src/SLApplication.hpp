@@ -17,7 +17,10 @@ class Application;
 class AppDelegate
 {
 public:
+    // override to set up initial model and view hierarchy
     virtual void appDidInitialize(Application* app) {};
+    
+    // override to clean up before app closes
     virtual void appWillTerminate(Application* app) {};    
 };
 

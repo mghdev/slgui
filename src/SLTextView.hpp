@@ -8,40 +8,54 @@
 
 namespace SL {
 
-class TextView;
-class TextViewDelegate
-{
-    virtual void textDidChange(TextView* view) = 0;
-};
-
 class TextView : public View
 {
 protected:
+    static constexpr auto min_cursor_width = 2;
+
+    bool allows_editing = true;
+    bool currently_editing = false;
     TTF_Font* font = nullptr;
     TTF_TextEngine* rendering_engine = nullptr;
-    TTF_Text* rendered_text = nullptr;
-public:
-    Color text_color = WHITE;
+    TTF_Text* internal_text = nullptr;
+    int cursor = 0;
     
+    void drawCursor(SDL_Renderer* renderer);
+    
+    void cursorVertical(int rows);
+    void cursorUp();
+    void cursorDown();
+    void cursorLeft();
+    void cursorRight();
+    void backspace();
+    
+    void handleKeyPress(const SDL_Event& event);
+public:
     TextView(Vec2F size, SDL_Renderer* renderer);
+    
     virtual void drawContent(SDL_Renderer* renderer) override;
     
+    void setAllowsEditing(bool val);
+    void moveCursor(int new_pos);
+    
+    std::string getString();
     void setString(std::string s);
-    const std::string& getString();
+    void deleteSubstring(int pos, int len);
+    void insertTextAtCursor(const char* str, int len);
     
-    void setFont(TTF_Font* font);
-    TTF_Font* getFont();
+    virtual bool becomeFirstResponder() override;
+    virtual bool resignFirstResponder() override;
+    virtual void leftMouseDown(const SDL_Event& event) override;
+    virtual void leftMouseUp(const SDL_Event& event) override;
+    virtual void leftMouseDragged(const SDL_Event& event) override;
+    virtual void keyDown(const SDL_Event& event) override;
+    virtual void keyHold(const SDL_Event& event) override;
+    virtual void textInput(const SDL_Event& event) override;
     
-    virtual void leftMouseDown(const SDL_Event& e) override {};
-    virtual void otherMouseDown(const SDL_Event& e) override {};
-    virtual void leftMouseUp(const SDL_Event& e) override {};
-    virtual void otherMouseUp(const SDL_Event& e) override {};
-    virtual void leftMouseDragged(const SDL_Event& e) override {};
-    virtual void otherMouseDragged(const SDL_Event& e) override {};
-    virtual void mouseMoved(const SDL_Event& e) override {};
-    
-    virtual void keyDown(const SDL_Event& e) override;
-    virtual void keyUp(const SDL_Event& e) override;
+    virtual void otherMouseDown(const SDL_Event& event) override {};
+    virtual void otherMouseUp(const SDL_Event& event) override {};
+    virtual void otherMouseDragged(const SDL_Event& event) override {};
+    virtual void mouseMoved(const SDL_Event& event) override {};
 };
 
 } //namespace SL

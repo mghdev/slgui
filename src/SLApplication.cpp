@@ -38,15 +38,8 @@ int Application::run()
             case SDL_EVENT_QUIT:
                 running = false;
                 break;
-            case SDL_EVENT_KEY_DOWN:
-            case SDL_EVENT_KEY_UP:
-            case SDL_EVENT_MOUSE_MOTION:
-            case SDL_EVENT_MOUSE_BUTTON_DOWN:
-            case SDL_EVENT_MOUSE_BUTTON_UP:
-            case SDL_EVENT_MOUSE_WHEEL:
-                main_window->sendEvent(sdl_event);
-                break;
             default:
+                main_window->sendEvent(sdl_event);
                 break;
         }
         main_window->displayIfNeeded();

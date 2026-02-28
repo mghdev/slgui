@@ -12,13 +12,14 @@ constexpr Rect DEFAULT_DIRTY_RECT = {0,0,0,0};
 
 Window::Window(std::unique_ptr<ViewController> vc) : first_responder(this)
 {
-    int window_flags = SDL_WINDOW_OPENGL;
+    int window_flags = 0;
     auto success = SDL_CreateWindowAndRenderer( "",
                                                 vc->view->frame.w,
                                                 vc->view->frame.h,
                                                 window_flags,
                                                 &backing_window,
                                                 &renderer);
+    
     if(!success) {
         auto e = SDL_GetError();
         throw std::runtime_error(std::format("Failed to create backing window: {}",e));
@@ -63,18 +64,19 @@ void Window::sendEvent(const SDL_Event& event)
     }
     switch (event.type)
     {
+        case SDL_EVENT_TEXT_INPUT:
+            first_responder->textInput(event);
+            break;
         case SDL_EVENT_KEY_DOWN:
             if(event.key.repeat) {
-                break;
+                first_responder->keyHold(event);
             }
-            if(first_responder) {
+            else {
                 first_responder->keyDown(event);
             }
             break;
         case SDL_EVENT_KEY_UP:
-            if(first_responder) {
-                first_responder->keyUp(event);
-            }
+            first_responder->keyUp(event);
             break;
         case SDL_EVENT_MOUSE_MOTION: {
             float x,y;
@@ -154,7 +156,7 @@ void Window::sendEvent(const SDL_Event& event)
 
 bool Window::makeFirstResponder(Responder& responder)
 {
-    if(first_responder && !first_responder->resignFirstResponder()) {
+    if(!first_responder->resignFirstResponder()) {
         return false;
     }
     if(responder.becomeFirstResponder()) {
@@ -222,6 +224,17 @@ void Window::toggleFullscreen()
         in_fullscreen = false;
     }
 }
+
+void Window::startTextInput()
+{
+    SDL_StartTextInput(backing_window);
+}
+
+void Window::stopTextInput()
+{
+    SDL_StopTextInput(backing_window);
+}
+
 
 } //namespace SL
 
