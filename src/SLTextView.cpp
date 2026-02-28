@@ -24,6 +24,7 @@ TextView::TextView(Vec2F size, SDL_Renderer* renderer) :
     internal_text(TTF_CreateText(rendering_engine,font,"",0))
 {
     TTF_SetTextWrapWidth(internal_text,size.x);
+    TTF_SetTextWrapWhitespaceVisible(internal_text,true);
 }
 
 void TextView::drawCursor(SDL_Renderer* renderer)
