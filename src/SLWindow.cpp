@@ -10,7 +10,7 @@ namespace SL {
 
 constexpr Rect DEFAULT_DIRTY_RECT = {0,0,0,0};
 
-Window::Window(std::unique_ptr<ViewController> vc) : first_responder(this)
+Window::Window(std::unique_ptr<ViewController> vc) : first_responder(this),dirty_rect(DEFAULT_DIRTY_RECT)
 {
     int window_flags = 0;
     auto success = SDL_CreateWindowAndRenderer( "",

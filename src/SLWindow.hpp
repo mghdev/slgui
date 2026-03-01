@@ -18,7 +18,7 @@ protected:
     RectI last_windowed_rect;
     Rect dirty_rect;
     
-    int texture_w,texture_h;
+    int texture_w=0,texture_h=0;
     SDL_Texture* content_texture = nullptr;
     Color background_color = COLOR::DARKMODE_BACKGROUND;
     

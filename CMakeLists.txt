@@ -34,7 +34,9 @@ create_resources("assets/fonts" ${CMAKE_BINARY_DIR}/assets/fonts.c)
 
 set(TARGET_NAME slgui)
 add_subdirectory(src)
+
 add_library(${TARGET_NAME} ${SOURCE_FILES} ${CMAKE_BINARY_DIR}/assets/fonts.c)
+set_target_properties(${TARGET_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 # find brew-installed standard libs
 if(APPLE)
