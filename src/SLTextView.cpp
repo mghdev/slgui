@@ -249,6 +249,11 @@ void TextView::handleKeyPress(const SDL_Event& event)
         case SDLK_RETURN:
             insertTextAtCursor("\n",0);
             break;
+        case SDLK_V:
+            if(event.key.mod & SDL_KMOD_CTRL) {
+                insertTextAtCursor(SDL_GetClipboardText(),0);
+            }
+            break;
         default:
             break;
     }
