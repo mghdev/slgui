@@ -11,6 +11,8 @@
 
 namespace SL {
 
+SDL_FRect toSDLRect(Rect r);
+    
 class Window;
 class View : public Responder
 {

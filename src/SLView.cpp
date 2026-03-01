@@ -52,6 +52,7 @@ void View::requestDisplay()
 {
     needs_redraw = true;
     if(window) {
+        window->viewWantsRedraw(this);
         auto r = transformRectTo(bounds,nullptr);
         window->setDirtyRect(r);
     }

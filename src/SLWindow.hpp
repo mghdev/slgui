@@ -17,8 +17,14 @@ protected:
     bool in_fullscreen = false;
     RectI last_windowed_rect;
     Rect dirty_rect;
+    
+    int texture_w,texture_h;
     SDL_Texture* content_texture = nullptr;
     Color background_color = DARKMODE_BACKGROUND;
+    
+    std::vector<View*> wants_redraw;
+    
+    void replaceContentTexture(int w, int h);
 public:
     SDL_Window* backing_window = nullptr;
     SDL_Renderer* renderer = nullptr;
@@ -41,6 +47,8 @@ public:
     void sendEvent(const SDL_Event& event);
     bool makeFirstResponder(Responder& responder);
     
+    void viewWantsRedraw(View* v);
+    void drawAllIfNeeded();
     void setDirtyRect(Rect r);
     void displayIfNeeded();
     void toggleFullscreen();

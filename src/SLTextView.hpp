@@ -49,6 +49,7 @@ public:
     void deleteSubstring(int pos, int len);
     void insertTextAtCursor(const char* str, int len);
     
+    virtual bool acceptsFirstResponder() override;
     virtual bool becomeFirstResponder() override;
     virtual bool resignFirstResponder() override;
     virtual void leftMouseDown(const SDL_Event& event) override;

@@ -42,6 +42,8 @@ Window::Window(Window&& other) noexcept :
     in_fullscreen(      std::move(other.in_fullscreen)),
     last_windowed_rect( std::move(other.last_windowed_rect)),
     dirty_rect(         std::move(other.dirty_rect)),
+    texture_w(          std::move(other.texture_w)),
+    texture_h(          std::move(other.texture_h)),
     background_color(   std::move(other.background_color)),
     content_vc(         std::move(other.content_vc)),
     content_view(       std::move(other.content_view)),
@@ -57,6 +59,8 @@ Window& Window::operator=(Window&& other) noexcept
     in_fullscreen       = std::move(other.in_fullscreen);
     last_windowed_rect  = std::move(other.last_windowed_rect);
     dirty_rect          = std::move(other.dirty_rect);
+    texture_w           = std::move(other.texture_w);
+    texture_h           = std::move(other.texture_h);
     background_color    = std::move(other.background_color);
     content_vc          = std::move(other.content_vc);
     content_view        = std::move(other.content_view);
@@ -88,13 +92,15 @@ void Window::sendEvent(const SDL_Event& event)
     }
     switch (event.type)
     {
-        case SDL_EVENT_WINDOW_RESIZED:
-            // the size of the root view's content is fixed, but
-            // but we can scale the size of the window's content texture here
-            content_view->setFrame(Rect(0,0,event.window.data1,event.window.data2));
-            SDL_DestroyTexture(content_texture);
-            content_texture = nullptr;
+        case SDL_EVENT_WINDOW_RESIZED: {
+            auto w = event.window.data1;
+            auto h = event.window.data2;
+            if(w > texture_w || h > texture_h) {
+                replaceContentTexture(std::max(w,texture_w),std::max(h,texture_h));
+            }
+            content_view->setFrame(Rect(0,0,w,h));
             break;
+        }
         case SDL_EVENT_TEXT_INPUT:
             first_responder->textInput(event);
             break;
@@ -137,11 +143,15 @@ void Window::sendEvent(const SDL_Event& event)
             switch (event.button.button)
             {
                 case SDL_BUTTON_LEFT:
-                    makeFirstResponder(*v);
+                    if(v->acceptsFirstResponder()) {
+                        makeFirstResponder(*v);
+                    }
                     v->leftMouseDown(event);
                     break;
                 case SDL_BUTTON_RIGHT:
-                    makeFirstResponder(*this);
+                    if(v->acceptsFirstResponder()) {
+                        makeFirstResponder(*this);
+                    }
                     v->rightMouseDown(event);
                     break;
                 default:
@@ -164,7 +174,9 @@ void Window::sendEvent(const SDL_Event& event)
                     first_responder->rightMouseUp(event);
                     break;
                 default:
-                    makeFirstResponder(*v);
+                    if(v->acceptsFirstResponder()) {
+                        makeFirstResponder(*v);
+                    }
                     v->otherMouseUp(event);
                     break;
             }
@@ -199,6 +211,11 @@ bool Window::makeFirstResponder(Responder& responder)
     return true;
 }
 
+void Window::viewWantsRedraw(View* v)
+{
+    wants_redraw.push_back(v);
+}
+
 void Window::setDirtyRect(Rect r)
 {
     if(dirty_rect == DEFAULT_DIRTY_RECT) {
@@ -209,12 +226,23 @@ void Window::setDirtyRect(Rect r)
     }
 }
 
-void drawAllIfNeeded(SDL_Renderer* renderer, View* v)
+void Window::drawAllIfNeeded()
 {
-    v->drawIfNeeded(renderer);
-    for(auto& subview : v->subviews) {
-        drawAllIfNeeded(renderer,subview.get());
+    while(wants_redraw.size() > 0) {
+        auto v = wants_redraw.back();
+        v->drawIfNeeded(renderer);
+        wants_redraw.pop_back();
     }
+}
+
+void Window::replaceContentTexture(int w, int h)
+{
+    if(content_texture) {
+        SDL_DestroyTexture(content_texture);
+    }
+    texture_w = w;
+    texture_h = h;
+    content_texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA32,SDL_TEXTUREACCESS_TARGET,w,h);
 }
 
 void Window::displayIfNeeded()
@@ -223,22 +251,26 @@ void Window::displayIfNeeded()
         return;
     }
     
-    drawAllIfNeeded(renderer,content_view.get());
+    drawAllIfNeeded();
     
     if(!content_texture) {
-        content_texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA32,SDL_TEXTUREACCESS_TARGET,content_view->frame.w,content_view->frame.h);
+        // allocate the size we would need for 1:1 fullscreen pixels
+        int display_idx = SDL_GetDisplayForWindow(backing_window);
+        auto mode = SDL_GetDesktopDisplayMode(display_idx);
+        replaceContentTexture(mode->w,mode->h);
     }
     
     SDL_SetRenderTarget(renderer,content_texture);
     auto r = intersection(dirty_rect,content_view->frame);
     
     SDL_SetRenderDrawColor(renderer,background_color.r,background_color.g,background_color.b,background_color.a);
-    auto sdl_r = SDL_FRect(r.x,r.y,r.w,r.h);
+    auto sdl_r = toSDLRect(r);
     SDL_RenderFillRect(renderer,&sdl_r); //background
     content_view->display(renderer,r,r);
     
     SDL_SetRenderTarget(renderer,NULL);
-    SDL_RenderTexture(renderer,content_texture,NULL,NULL);
+    auto window_sdl_r = toSDLRect(content_view->frame);
+    SDL_RenderTexture(renderer,content_texture,&window_sdl_r,&window_sdl_r);
     SDL_RenderPresent(renderer);
     
     dirty_rect = DEFAULT_DIRTY_RECT;

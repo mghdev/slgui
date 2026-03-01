@@ -183,6 +183,11 @@ void TextView::backspace()
     deleteSubstring(substr.offset,substr.length);
 }
 
+bool TextView::acceptsFirstResponder()
+{
+    return true;
+}
+
 bool TextView::becomeFirstResponder()
 {
     currently_editing = allows_editing;
