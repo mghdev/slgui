@@ -32,14 +32,18 @@ public:
     
     bool needs_redraw = true;
     bool is_hidden = false;
-    Color background_color = DARKMODE_BACKGROUND;
+    Color background_color = COLOR::NONE;
     
     View(Vec2F size);
     
     virtual ~View();
+    // delete-ing all of these while the class is WiP
+    // when the design is more settled, I will probably implement some of them
+    // just very annoying to have to update all the time
     View(const View&) = delete;
     View& operator=(const View&) = delete;
-    View(View&& other) noexcept;
+    View(View&& other) = delete;
+    // View(View&& other) noexcept;
     View& operator=(View&& other) = delete;
     
     virtual void requestDisplay();

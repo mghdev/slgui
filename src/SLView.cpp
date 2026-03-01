@@ -33,20 +33,21 @@ View::~View()
     SDL_DestroyTexture(texture);
 }
 
-View::View(View&& other) noexcept :
-    view_size(other.view_size),
-    texture(std::exchange(other.texture,nullptr)),
-    window(             std::move(other.window)),
-    superview(          std::move(other.superview)),
-    frame(              std::move(other.frame)),
-    bounds(             std::move(other.bounds)),
-    subviews(           std::move(other.subviews)),
-    needs_redraw(       std::move(other.needs_redraw)),
-    is_hidden(          std::move(other.is_hidden)),
-    background_color(   std::move(other.background_color))
-{
+// TODO: bring these back when design is more stable
+// View::View(View&& other) noexcept :
+//     view_size(other.view_size),
+//     texture(std::exchange(other.texture,nullptr)),
+//     window(             std::move(other.window)),
+//     superview(          std::move(other.superview)),
+//     frame(              std::move(other.frame)),
+//     bounds(             std::move(other.bounds)),
+//     subviews(           std::move(other.subviews)),
+//     needs_redraw(       std::move(other.needs_redraw)),
+//     is_hidden(          std::move(other.is_hidden)),
+//     background_color(   std::move(other.background_color))
+// {
     
-}
+// }
 
 void View::requestDisplay()
 {
@@ -170,6 +171,7 @@ void View::addSubview(std::shared_ptr<View> v)
 {
     v->next_responder = this;
     v->superview = this;
+    v->setWindow(window);
     subviews.push_back(v);
 }
 

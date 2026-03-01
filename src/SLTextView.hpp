@@ -34,9 +34,13 @@ public:
     TextView(Vec2F size, SDL_Renderer* renderer);
     
     virtual ~TextView() override;
+    // delete-ing all of these while the class is WiP
+    // when the design is more settled, I will probably implement some of them
+    // just very annoying to have to update all the time
     TextView(const TextView&) = delete;
     TextView& operator=(const TextView&) = delete;
-    TextView(TextView&& other) noexcept;
+    TextView(TextView&& other) = delete;
+    // TextView(TextView&& other) noexcept;
     TextView& operator=(TextView&& other) = delete;
     
     virtual void drawContent(SDL_Renderer* renderer) override;

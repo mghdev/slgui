@@ -35,39 +35,40 @@ Window::~Window()
     SDL_DestroyTexture(content_texture);
 }
 
-Window::Window(Window&& other) noexcept :
-    backing_window( std::exchange(other.backing_window,nullptr)),
-    renderer(       std::exchange(other.renderer,nullptr)),
-    content_texture(std::exchange(other.content_texture,nullptr)),
-    in_fullscreen(      std::move(other.in_fullscreen)),
-    last_windowed_rect( std::move(other.last_windowed_rect)),
-    dirty_rect(         std::move(other.dirty_rect)),
-    texture_w(          std::move(other.texture_w)),
-    texture_h(          std::move(other.texture_h)),
-    background_color(   std::move(other.background_color)),
-    content_vc(         std::move(other.content_vc)),
-    content_view(       std::move(other.content_view)),
-    first_responder(    std::move(other.first_responder))
-{}
+// TODO: bring these back when design is more stable
+// Window::Window(Window&& other) noexcept :
+//     backing_window( std::exchange(other.backing_window,nullptr)),
+//     renderer(       std::exchange(other.renderer,nullptr)),
+//     content_texture(std::exchange(other.content_texture,nullptr)),
+//     in_fullscreen(      std::move(other.in_fullscreen)),
+//     last_windowed_rect( std::move(other.last_windowed_rect)),
+//     dirty_rect(         std::move(other.dirty_rect)),
+//     texture_w(          std::move(other.texture_w)),
+//     texture_h(          std::move(other.texture_h)),
+//     background_color(   std::move(other.background_color)),
+//     content_vc(         std::move(other.content_vc)),
+//     content_view(       std::move(other.content_view)),
+//     first_responder(    std::move(other.first_responder))
+// {}
 
-Window& Window::operator=(Window&& other) noexcept
-{
-    std::swap(backing_window,other.backing_window);
-    std::swap(renderer,other.renderer);
-    std::swap(content_texture,other.content_texture);
+// Window& Window::operator=(Window&& other) noexcept
+// {
+//     std::swap(backing_window,other.backing_window);
+//     std::swap(renderer,other.renderer);
+//     std::swap(content_texture,other.content_texture);
     
-    in_fullscreen       = std::move(other.in_fullscreen);
-    last_windowed_rect  = std::move(other.last_windowed_rect);
-    dirty_rect          = std::move(other.dirty_rect);
-    texture_w           = std::move(other.texture_w);
-    texture_h           = std::move(other.texture_h);
-    background_color    = std::move(other.background_color);
-    content_vc          = std::move(other.content_vc);
-    content_view        = std::move(other.content_view);
-    first_responder     = std::move(other.first_responder);
+//     in_fullscreen       = std::move(other.in_fullscreen);
+//     last_windowed_rect  = std::move(other.last_windowed_rect);
+//     dirty_rect          = std::move(other.dirty_rect);
+//     texture_w           = std::move(other.texture_w);
+//     texture_h           = std::move(other.texture_h);
+//     background_color    = std::move(other.background_color);
+//     content_vc          = std::move(other.content_vc);
+//     content_view        = std::move(other.content_view);
+//     first_responder     = std::move(other.first_responder);
     
-    return *this;
-}
+//     return *this;
+// }
 
 void Window::setBackgroundColor(Color color)
 {
@@ -118,12 +119,20 @@ void Window::sendEvent(const SDL_Event& event)
         case SDL_EVENT_MOUSE_MOTION: {
             float x,y;
             auto state = SDL_GetMouseState(&x,&y);
-            if(state == 0) {
-                auto v = content_view->hitTest({x,y});
-                if(!v) {
-                    break;
+            auto v = content_view->hitTest({x,y});
+            if(v != last_motion_hit) {
+                if(last_motion_hit) {
+                    last_motion_hit->mouseExited(event);
                 }
-                v->mouseMoved(event);
+                if(v) {
+                    v->mouseEntered(event);
+                }
+                last_motion_hit = v;
+            }
+            if(state == 0) {
+                if(v) {
+                    v->mouseMoved(event);
+                }
             }
             else {
                 if(state & SDL_BUTTON_LMASK) {

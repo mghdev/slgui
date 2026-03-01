@@ -17,13 +17,6 @@ bool Responder::resignFirstResponder()
     return true;
 }
 
-void Responder::respondToEvent(const SDL_Event& event)
-{
-    if (next_responder) {
-        next_responder->respondToEvent(event);
-    }
-}
-
 void Responder::leftMouseDown(const SDL_Event& event)
 {
     if(next_responder) {
@@ -71,6 +64,20 @@ void Responder::mouseMoved(const SDL_Event& event)
 {
     if(next_responder) {
         next_responder->mouseMoved(event);
+    }
+}
+
+void Responder::mouseEntered(const SDL_Event& event)
+{
+    if(next_responder) {
+        next_responder->mouseEntered(event);
+    }
+}
+
+void Responder::mouseExited(const SDL_Event& event)
+{
+    if(next_responder) {
+        next_responder->mouseExited(event);
     }
 }
 

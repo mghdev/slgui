@@ -35,17 +35,18 @@ TextView::~TextView()
     TTF_DestroyRendererTextEngine(rendering_engine);
 }
 
-TextView::TextView(TextView&& other) noexcept :
-    View(std::move(other)),
-    rendering_engine(   std::exchange(other.rendering_engine,nullptr)),
-    internal_text(      std::exchange(other.internal_text,nullptr)),
-    allows_editing(     std::move(other.allows_editing)),
-    currently_editing(  std::move(other.currently_editing)),
-    font(               std::move(other.font)),
-    cursor(             std::move(other.cursor))
-{
+// TODO: bring these back when design is more stable
+// TextView::TextView(TextView&& other) noexcept :
+//     View(std::move(other)),
+//     rendering_engine(   std::exchange(other.rendering_engine,nullptr)),
+//     internal_text(      std::exchange(other.internal_text,nullptr)),
+//     allows_editing(     std::move(other.allows_editing)),
+//     currently_editing(  std::move(other.currently_editing)),
+//     font(               std::move(other.font)),
+//     cursor(             std::move(other.cursor))
+// {
     
-}
+// }
 
 void TextView::drawCursor(SDL_Renderer* renderer)
 {
@@ -210,6 +211,9 @@ bool TextView::resignFirstResponder()
 
 void TextView::leftMouseDown(const SDL_Event& event)
 {
+    if(!currently_editing) {
+        return;
+    }
     TTF_SubString substr;
     auto rect = transformRectFrom(Rect{event.button.x,event.button.y,0,0},nullptr);
     TTF_GetTextSubStringForPoint(internal_text,rect.x,rect.y,&substr);
@@ -228,6 +232,9 @@ void TextView::leftMouseDragged(const SDL_Event& event)
 
 void TextView::handleKeyPress(const SDL_Event& event)
 {
+    if(!currently_editing) {
+        return;
+    }
     switch (event.key.key)
     {
         case SDLK_UP:
@@ -271,6 +278,9 @@ void TextView::keyHold(const SDL_Event& event)
 
 void TextView::textInput(const SDL_Event& event)
 {
+    if(!currently_editing) {
+        return;
+    }
     insertTextAtCursor(event.text.text,0);
 }
 

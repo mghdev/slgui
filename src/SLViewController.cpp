@@ -30,7 +30,6 @@ void ViewController::addChild(std::unique_ptr<ViewController> vc)
 {
     view->addSubview(vc->view);
     vc->view->next_responder = vc.get();
-    vc->view->setWindow(view->window);
     vc->next_responder = view.get();
     vc->parent = this;
     children.push_back(std::move(vc));

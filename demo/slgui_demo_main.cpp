@@ -1,6 +1,7 @@
 
 #include "SLApplication.hpp"
 #include "SLTextView.hpp"
+#include "SLButton.hpp"
 
 class LinesView : public SL::View
 {
@@ -19,7 +20,7 @@ protected:
     static constexpr int num_colors = 5;
     
     int color_idx = 0;
-    SL::Color colors[num_colors] = {SL::DARKMODE_BACKGROUND,{110,55,55,255},{55,110,55,255},{55,55,110,255},{110,110,110,255}};
+    SL::Color colors[num_colors] = {SL::COLOR::DARKMODE_BACKGROUND,{110,55,55,255},{55,110,55,255},{55,55,110,255},{110,110,110,255}};
     
     void setColorIdx(int i) {
         color_idx = SL::clamp(0,i,num_colors-1);
@@ -90,10 +91,16 @@ public:
         // More views can be added after the window is constructed
         auto tv = std::make_shared<SL::TextView>(SL::Vec2F{500,600},window_ptr->renderer);
         tv->setString("Hello there.\nThis is a TextView.\n\nYou can edit this text.\n\nThe colors of the squares to the right will change if you click on them.");
+        tv->background_color = SL::COLOR::DARKMODE_BACKGROUND;
         auto vc5 = std::make_unique<SL::ViewController>(std::move(tv));
         vc5->view->setFrame(SL::Rect{20,20,500,600});
-        
         window_ptr->content_vc->addChild(std::move(vc5));
+        
+        // Subviews can be added without a view controller
+        // auto button = std::make_shared<SL::Button>(SL::Vec2F{200,30},window_ptr->renderer);
+        // button->setFrame(SL::Rect{600,400,200,30});
+        // button->setLabel("Click Me!");
+        // window_ptr->content_view->addSubview(std::move(button));
         
         // Finish by moving the window into app
         app->main_window = std::move(window_ptr);

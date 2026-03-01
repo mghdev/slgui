@@ -20,8 +20,9 @@ protected:
     
     int texture_w,texture_h;
     SDL_Texture* content_texture = nullptr;
-    Color background_color = DARKMODE_BACKGROUND;
+    Color background_color = COLOR::DARKMODE_BACKGROUND;
     
+    View* last_motion_hit = nullptr;
     std::vector<View*> wants_redraw;
     
     void replaceContentTexture(int w, int h);
@@ -36,10 +37,15 @@ public:
     Window(std::unique_ptr<ViewController> vc);
     
     virtual ~Window();
+    // delete-ing all of these while the class is WiP
+    // when the design is more settled, I will probably implement some of them
+    // just very annoying to have to update all the time
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
-    Window(Window&& other) noexcept;
-    Window& operator=(Window&& other) noexcept;
+    Window(Window&& other) = delete;
+    Window& operator=(Window&& other) = delete;
+    // Window(Window&& other) noexcept;
+    // Window& operator=(Window&& other) noexcept;
     
     void setBackgroundColor(Color color);
     void setContentVC(std::unique_ptr<ViewController> vc);

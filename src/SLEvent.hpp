@@ -15,8 +15,6 @@ public:
     virtual bool becomeFirstResponder();
     virtual bool resignFirstResponder();
     
-    virtual void respondToEvent(const SDL_Event& event);
-    
     virtual void leftMouseDown(const SDL_Event& event);
     virtual void rightMouseDown(const SDL_Event& event);
     virtual void otherMouseDown(const SDL_Event& event);
@@ -26,6 +24,8 @@ public:
     virtual void otherMouseUp(const SDL_Event& event);
     
     virtual void mouseMoved(const SDL_Event& event);
+    virtual void mouseEntered(const SDL_Event& event);
+    virtual void mouseExited(const SDL_Event& event);
     
     virtual void leftMouseDragged(const SDL_Event& event);
     virtual void rightMouseDragged(const SDL_Event& event);
