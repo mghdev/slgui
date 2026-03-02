@@ -167,6 +167,7 @@ void Window::sendEvent(const SDL_Event& event)
                     v->otherMouseDown(event);
                     break;
             }
+            break;
         }
         case SDL_EVENT_MOUSE_BUTTON_UP: {
             auto v = content_view->hitTest({event.button.x,event.button.y});

@@ -4,11 +4,15 @@
 
 namespace SL {
 
+static constexpr auto DEFAULT_BORDER_COLOR = Color(25,125,150,255);
+
 Button::Button(Vec2F size, SDL_Renderer* renderer) : 
     View(size),
     label_view(std::make_shared<TextView>(size,renderer))
 {
     addSubview(label_view);
+    setBackgroundColor(COLOR::DARKMODE_BACKGROUND);
+    setBorderWidthAndColor(2,DEFAULT_BORDER_COLOR);
 }
 
 void Button::setLabel(std::string new_label)
@@ -69,7 +73,7 @@ void Button::leftMouseDown(const SDL_Event& event)
 void Button::leftMouseUp(const SDL_Event& event)
 {
     if(state & STATE_PRESSED) {
-        button_press_action();
+        action();
     }
     exitState(STATE_PRESSED);
 }
@@ -92,7 +96,7 @@ void Button::leftMouseDragged(const SDL_Event& event)
 void Button::keyDown(const SDL_Event& event)
 {
     if(state & STATE_SELECTED && event.key.key == SDLK_RETURN) {
-        button_press_action();
+        action();
     }
 }
 

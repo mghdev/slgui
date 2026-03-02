@@ -23,7 +23,7 @@ public:
     int8_t state = STATE_NONE;
     int8_t visual_states = STATE_NONE | STATE_HOVERED;
     
-    std::function<void()> button_press_action = [](){};
+    std::function<void()> action = [](){};
     
     Button(Vec2F size, SDL_Renderer* renderer);
     

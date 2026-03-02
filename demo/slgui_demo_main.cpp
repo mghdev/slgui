@@ -1,3 +1,4 @@
+#include <format> //format
 
 #include "SLApplication.hpp"
 #include "SLTextView.hpp"
@@ -14,6 +15,21 @@ public:
     }
 };
 
+class Incrementer : public SL::ViewController
+{
+protected:
+    int count = 0;
+    std::shared_ptr<SL::TextView> count_display;
+public:
+    Incrementer(std::shared_ptr<SL::TextView> view) : SL::ViewController(view),count_display(view) {
+        view->setString(std::format("{}",count));
+    }
+    void increment() {
+        ++count;
+        count_display->setString(std::format("{}",count));
+    }
+};
+
 class ColorCycler : public SL::ViewController
 {
 protected:
@@ -24,15 +40,15 @@ protected:
     
     void setColorIdx(int i) {
         color_idx = SL::clamp(0,i,num_colors-1);
-        view->background_color = colors[color_idx];
+        view->setBackgroundColor(colors[color_idx]);
     }
     
 public:
     ColorCycler(SL::Rect r, int idx = 0) : SL::ViewController(r), color_idx(idx) {
-        view->background_color = colors[color_idx];
+        view->setBackgroundColor(colors[color_idx]);
     }
     ColorCycler(std::shared_ptr<SL::View> view, int idx = 0) : SL::ViewController(view), color_idx(idx) {
-        view->background_color = colors[color_idx];
+        view->setBackgroundColor(colors[color_idx]);
     }
     void nextColor() {
         setColorIdx((color_idx+1)%num_colors);
@@ -76,7 +92,7 @@ public:
         
         // Often, the root view in the hierarchy should simply be a container for subviews
         auto root_vc = std::make_unique<SL::ViewController>(SL::Rect{0,0,960,720});
-        root_vc->view->background_color = SL::Color{110,110,110,255};
+        root_vc->view->setBackgroundColor(SL::Color{110,110,110,255});
         
         // Some squares that change colors
         auto vc2 = std::make_unique<ColorCycler>(SL::Rect{600,100,100,100},1);
@@ -91,16 +107,28 @@ public:
         // More views can be added after the window is constructed
         auto tv = std::make_shared<SL::TextView>(SL::Vec2F{500,600},window_ptr->renderer);
         tv->setString("Hello there.\nThis is a TextView.\n\nYou can edit this text.\n\nThe colors of the squares to the right will change if you click on them.");
-        tv->background_color = SL::COLOR::DARKMODE_BACKGROUND;
+        tv->setBackgroundColor(SL::COLOR::DARKMODE_BACKGROUND);
         auto vc5 = std::make_unique<SL::ViewController>(std::move(tv));
         vc5->view->setFrame(SL::Rect{20,20,500,600});
         window_ptr->content_vc->addChild(std::move(vc5));
         
-        // Subviews can be added without a view controller
-        // auto button = std::make_shared<SL::Button>(SL::Vec2F{200,30},window_ptr->renderer);
-        // button->setFrame(SL::Rect{600,400,200,30});
+        // Uncomment this stuff to see what buttons look like so far
+        // auto counter = std::make_shared<SL::TextView>(SL::Vec2F{150,40},window_ptr->renderer);
+        // auto incr = std::make_unique<Incrementer>(counter);
+        // incr->view->setFrame({600,350,150,40});
+        
+        // auto button = std::make_shared<SL::Button>(SL::Vec2F{150,40},window_ptr->renderer);
+        // button->setFrame(SL::Rect{600,400,150,40});
         // button->setLabel("Click Me!");
+        
+        // auto pointer = incr.get();
+        // button->action = [pointer](){
+        //     pointer->increment();
+        // };
+        
+        // // Subviews can be added without a view controller
         // window_ptr->content_view->addSubview(std::move(button));
+        // window_ptr->content_vc->addChild(std::move(incr));
         
         // Finish by moving the window into app
         app->main_window = std::move(window_ptr);

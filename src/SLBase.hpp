@@ -179,6 +179,11 @@ T clamp(const T& min,const T& value,const T& max)
 struct Color
 {
     uint8_t r=0,g=0,b=0,a=0;
+    
+    bool operator==(const Color& o) const
+    {
+        return r==o.r && g==o.g && b==o.b && a==o.a;
+    }
 };
 
 namespace COLOR {

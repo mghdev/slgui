@@ -3,6 +3,7 @@
 #include <algorithm> //erase_if
 #include <utility> //exchange
 
+#include "SLDrawing.hpp"
 #include "SLGeometry.hpp"
 #include "SLWindow.hpp"
 
@@ -51,7 +52,7 @@ View::~View()
 
 void View::requestDisplay()
 {
-    needs_redraw = true;
+    flags |= NEEDS_REDRAW;
     if(window) {
         window->viewWantsRedraw(this);
         auto r = transformRectTo(bounds,nullptr);
@@ -206,9 +207,40 @@ View* View::closestSharedAncestor(const View& other)
     return nullptr;
 }
 
+void View::setBackgroundColor(Color color)
+{
+    if(background_color != color) {
+        requestDisplay();
+    }
+    background_color = color;
+}
+
+void View::setBorderWidth(decltype(border_width) width)
+{
+    if(border_width != width) {
+        requestDisplay();
+    }
+    border_width = width;
+}
+
+void View::setBorderColor(Color color)
+{
+    if(border_color != color) {
+        requestDisplay();
+    }
+    border_color = color;
+}
+
+void View::setBorderWidthAndColor(decltype(border_width) width, Color color)
+{
+    setBorderWidth(width);
+    setBorderColor(color);
+}
+
+
 void View::drawIfNeeded(SDL_Renderer* renderer)
 {
-    if(!needs_redraw) {
+    if(!(flags & NEEDS_REDRAW)) {
         return;
     }
     
@@ -218,14 +250,23 @@ void View::drawIfNeeded(SDL_Renderer* renderer)
     
     SDL_SetRenderTarget(renderer,texture);
     drawBackground(renderer);
+    drawBorder(renderer);
     drawContent(renderer);
-    needs_redraw = false;
+    flags = flags & ~NEEDS_REDRAW;
 }
 
 void View::drawBackground(SDL_Renderer* renderer)
 {
     SDL_SetRenderDrawColor(renderer,background_color.r,background_color.g,background_color.b,background_color.a);
     SDL_RenderClear(renderer);
+}
+
+void View::drawBorder(SDL_Renderer* renderer)
+{
+    if(border_width > 0) {
+        SDL_SetRenderDrawColor(renderer,border_color.r,border_color.g,border_color.b,border_color.a);
+        SDL_RenderThickRect(renderer,toSDLRect(bounds),border_width);
+    }
 }
 
 void View::drawContent(SDL_Renderer* renderer)
@@ -235,7 +276,7 @@ void View::drawContent(SDL_Renderer* renderer)
 
 void View::display(SDL_Renderer* renderer, const Rect& target_frame, const Rect& window_coords)
 {
-    if(is_hidden || target_frame.w <= 0 || target_frame.h <= 0) {
+    if((flags & IS_HIDDEN) || target_frame.w <= 0 || target_frame.h <= 0) {
         return;
     }
     

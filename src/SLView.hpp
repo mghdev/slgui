@@ -12,27 +12,37 @@
 namespace SL {
 
 SDL_FRect toSDLRect(Rect r);
-    
+
 class Window;
 class View : public Responder
 {
-protected:
+protected:    
+    typedef enum Flags {
+        NONE = 0x00,
+        NEEDS_REDRAW = 0x01,
+        IS_HIDDEN = 0x02
+    } Flags;
+    int8_t flags;
+    
+    float border_width = 0;
+    Color border_color = COLOR::NONE;
+    Color background_color = COLOR::NONE;
     SDL_Texture * texture = nullptr;
 public:
     Window* window = nullptr;
     View* superview = nullptr;
-    Rect frame; // Placement within superview's coordinate system (root view's frame is the same as the window's rect)
-    Rect bounds;  // Rect within own coordinate system that is currently aligned with frame.
+    
+    // Placement within superview's coordinate system (root view's frame is the same as the window's rect)
+    Rect frame;
+    // Rect within own coordinate system that is currently aligned with frame.
+    Rect bounds;  
     
     //Size of the view's content in its internal coordinate system
     //This is fixed on view construction
     Vec2F const view_size;  
     
-    std::vector<std::shared_ptr<View>> subviews; //ownership of subviews can be shared between superview and view controller
-    
-    bool needs_redraw = true;
-    bool is_hidden = false;
-    Color background_color = COLOR::NONE;
+    // ownership of subviews can be shared between superview and view controller
+    std::vector<std::shared_ptr<View>> subviews; 
     
     View(Vec2F size);
     
@@ -56,14 +66,19 @@ public:
     virtual void setWindow(Window* window);
     virtual void addSubview(std::shared_ptr<View> v);
     virtual void removeFromSuperview();
-    
     virtual bool isDescendantOf(const View& other) const;
     virtual View* closestSharedAncestor(const View& other);
+    
+    virtual void setBackgroundColor(Color color);
+    virtual void setBorderWidth(decltype(border_width) width);
+    virtual void setBorderColor(Color color);
+    virtual void setBorderWidthAndColor(decltype(border_width) width, Color color);
     
     // The main draw call does some rect transforms then calls, in order: drawBackground, drawContent, drawSubviews
     // The intent is for subclasses of SL::View to override drawContent to perform custom drawing.
     virtual void drawIfNeeded(SDL_Renderer* renderer);
     virtual void drawBackground(SDL_Renderer* renderer);
+    virtual void drawBorder(SDL_Renderer* renderer);
     virtual void drawContent(SDL_Renderer* renderer);
     
     virtual void display(SDL_Renderer* renderer, const Rect& target_frame, const Rect& window_coords);
